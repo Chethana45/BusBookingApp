@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const BookingConfirmation = () => {
@@ -6,16 +6,28 @@ const BookingConfirmation = () => {
   const location = useLocation();
   const booking = location.state || {};
 
-  const hasBookingData = booking && Object.keys(booking).length > 0;
+  const hasBookingData = Boolean(booking && Object.keys(booking).length > 0);
+
+  const bookingId = useMemo(() => {
+    if (booking.bookingId) return booking.bookingId;
+    const now = new Date();
+    return `BK${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+  }, [booking.bookingId]);
 
   if (!hasBookingData) {
     return (
       <div className="booking-confirmation-page">
-        <div className="no-results">
-          <p>No booking details were found. Please complete a booking first.</p>
-          <button className="search-buses-btn" onClick={() => navigate('/search-bus')}>
-            🔍 Search Buses
-          </button>
+        <div className="booking-confirmation-card no-booking-card">
+          <div className="confirmation-header">
+            <div className="confirmation-icon">⚠️</div>
+            <h1>No booking found</h1>
+            <p className="confirmation-message">Please complete a seat selection and payment to view confirmation details.</p>
+          </div>
+          <div className="confirmation-actions justify-center">
+            <button className="primary-btn" onClick={() => navigate('/search-bus')}>
+              Search Buses
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -23,7 +35,6 @@ const BookingConfirmation = () => {
 
   const {
     passengerName = 'Ananya Sharma',
-    bookingId = 'BK20260608',
     busName = 'RedBus Express',
     busType = 'AC Sleeper',
     from = 'New Delhi',
@@ -34,6 +45,7 @@ const BookingConfirmation = () => {
     selectedSeats = ['12', '13'],
     totalFare = 900,
     farePerSeat = 450,
+    paymentMethod = 'UPI',
   } = booking;
 
   return (
@@ -41,9 +53,9 @@ const BookingConfirmation = () => {
       <div className="booking-confirmation-card">
         <div className="confirmation-header">
           <div className="confirmation-icon">✅</div>
-          <h1>Booking Confirmed!</h1>
+          <h1>Booking Confirmed</h1>
           <p className="confirmation-message">
-            Your seat booking is successful. Here are the details for your journey.
+            Your bus booking is confirmed. A receipt has been emailed to you with all the travel details.
           </p>
         </div>
 
@@ -61,7 +73,7 @@ const BookingConfirmation = () => {
             <span className="summary-value">{busName}</span>
           </div>
           <div className="summary-block">
-            <span className="summary-label">Type</span>
+            <span className="summary-label">Bus Type</span>
             <span className="summary-value">{busType}</span>
           </div>
           <div className="summary-block">
@@ -85,20 +97,26 @@ const BookingConfirmation = () => {
             <span className="summary-value">{selectedSeats.join(', ')}</span>
           </div>
           <div className="summary-block">
+            <span className="summary-label">Payment Method</span>
+            <span className="summary-value">{paymentMethod}</span>
+          </div>
+          <div className="summary-block">
             <span className="summary-label">Fare per Seat</span>
             <span className="summary-value">₹{farePerSeat}</span>
           </div>
           <div className="summary-block total-fare-block">
-            <span className="summary-label">Total Fare</span>
+            <span className="summary-label">Fare Paid</span>
             <span className="summary-value">₹{totalFare}</span>
           </div>
         </div>
 
         <div className="confirmation-actions">
           <button className="primary-btn" onClick={() => navigate('/booking-history')}>
-            View My Bookings
+            View Booking History
           </button>
-          <button className="secondary-btn" onClick={() => navigate('/')}>Book Another Trip</button>
+          <button className="secondary-btn" onClick={() => navigate('/search-bus')}>
+            Book Another Trip
+          </button>
         </div>
       </div>
     </div>

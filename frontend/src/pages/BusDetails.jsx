@@ -1,14 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getBusById } from '../data/buses';
+
+const placeholderImage = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23edf2f7'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='32' fill='%23666'%3EBus%20image%20unavailable%3C/text%3E%3C/svg%3E";
+
+const AMENITY_ICONS = {
+  wifi: '📶',
+  ac: '❄️',
+  'charging port': '🔌',
+  charging: '🔌',
+  'charging points': '🔌',
+  'usb charging': '🔌',
+  'water bottle': '💧',
+  water: '💧',
+  'gps tracking': '📡',
+  blanket: '🧣',
+  blankets: '🧣',
+  'reading light': '💡',
+  'reclining seats': '🛋️',
+  snacks: '🍪',
+  breakfast: '🥐',
+  dinner: '🍽️',
+  pillow: '🛏️',
+  'basic seating': '🪑',
+};
+
+const getAmenityIcon = (amenity) => {
+  return AMENITY_ICONS[amenity.toLowerCase()] || '✨';
+};
 
 const BusDetails = () => {
   const navigate = useNavigate();
   const { busId } = useParams();
-  const [selectedSeats, setSelectedSeats] = useState(0);
   const [busDetails, setBusDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [imageSrc, setImageSrc] = useState(placeholderImage);
 
   useEffect(() => {
     setLoading(true);
@@ -19,8 +46,10 @@ const BusDetails = () => {
       if (!data) {
         setError('Bus details not found. Please return to search and select another bus.');
         setBusDetails(null);
+        setImageSrc(placeholderImage);
       } else {
         setBusDetails(data);
+        setImageSrc(data.image || placeholderImage);
       }
       setLoading(false);
     }, 500);
@@ -61,19 +90,21 @@ const BusDetails = () => {
   }
 
   return (
-    <div className="bus-details-container">
+    <div className="bus-details-container bus-details-page">
       <div className="bus-details-wrapper">
-        {/* Bus Image Section */}
         <div className="bus-image-section">
-          <img src={busDetails.image} alt={busDetails.busName} className="bus-image" />
+          <img
+            src={imageSrc}
+            alt={busDetails?.busName || 'Bus details'}
+            className="bus-image"
+            onError={() => setImageSrc(placeholderImage)}
+          />
           <div className="bus-overlay-info">
             <div className="operator-badge">{busDetails.operator}</div>
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="bus-details-content">
-          {/* Header Section */}
           <div className="details-header">
             <div>
               <h1 className="bus-name">{busDetails.busName}</h1>
@@ -88,10 +119,25 @@ const BusDetails = () => {
             </div>
           </div>
 
-          {/* Description */}
           <p className="bus-description">{busDetails.description}</p>
 
-          {/* Journey Details */}
+          <div className="detail-highlights">
+            <div className="highlight-card">
+              <span>Available seats</span>
+              <strong>
+                {busDetails.availableSeats} / {busDetails.totalSeats}
+              </strong>
+            </div>
+            <div className="highlight-card">
+              <span>Starting fare</span>
+              <strong>₹{busDetails.fare}</strong>
+            </div>
+            <div className="highlight-card">
+              <span>Journey duration</span>
+              <strong>{busDetails.duration}</strong>
+            </div>
+          </div>
+
           <div className="journey-details-section">
             <h2>Journey Details</h2>
             <div className="journey-grid">
@@ -112,7 +158,6 @@ const BusDetails = () => {
             </div>
           </div>
 
-          {/* Boarding and Dropping Points */}
           <div className="boarding-dropping-section">
             <div className="point-card boarding-point">
               <h3>🚀 Boarding Point</h3>
@@ -128,20 +173,18 @@ const BusDetails = () => {
             </div>
           </div>
 
-          {/* Amenities Section */}
           <div className="amenities-section">
             <h2>Amenities & Facilities</h2>
             <div className="amenities-grid">
               {busDetails.amenities.map((amenity) => (
-                <div key={amenity.id} className="amenity-card">
-                  <div className="amenity-icon">{amenity.icon}</div>
-                  <div className="amenity-name">{amenity.name}</div>
+                <div key={amenity} className="amenity-card">
+                  <div className="amenity-icon">{getAmenityIcon(amenity)}</div>
+                  <div className="amenity-name">{amenity}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Route Stops */}
           <div className="route-stops-section">
             <h2>Route Stops</h2>
             <div className="stops-timeline">
@@ -158,14 +201,12 @@ const BusDetails = () => {
             </div>
           </div>
 
-          {/* Cancellation Policy */}
           <div className="policy-section">
             <h2>Cancellation Policy</h2>
             <p className="policy-text">{busDetails.cancellationPolicy}</p>
           </div>
         </div>
 
-        {/* Sidebar - Booking Summary */}
         <div className="booking-sidebar">
           <div className="fare-card">
             <div className="fare-header">
@@ -185,9 +226,7 @@ const BusDetails = () => {
                 <div className="availability-bar">
                   <div
                     className="availability-fill"
-                    style={{
-                      width: `${(busDetails.availableSeats / busDetails.totalSeats) * 100}%`,
-                    }}
+                    style={{ width: `${(busDetails.availableSeats / busDetails.totalSeats) * 100}%` }}
                   ></div>
                 </div>
               </div>
@@ -198,8 +237,8 @@ const BusDetails = () => {
               <span className="total-amount">₹{busDetails.fare}</span>
             </div>
 
-            <button className="book-now-btn" onClick={handleSelectSeats}>
-              Continue to Seats
+            <button className="select-seats-btn" onClick={handleSelectSeats}>
+              Select Seats
             </button>
 
             <div className="payment-info">

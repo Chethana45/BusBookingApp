@@ -9,7 +9,6 @@ const SeatSelection = () => {
   const [busInfo, setBusInfo] = useState(null);
   const [bookedSeats, setBookedSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [showBookingConfirm, setShowBookingConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -46,14 +45,8 @@ const SeatSelection = () => {
 
   const handleProceedToBooking = () => {
     if (selectedSeats.length === 0) {
-      alert('Please select at least one seat');
       return;
     }
-    setShowBookingConfirm(true);
-  };
-
-  const handleConfirmBooking = () => {
-    if (!busInfo) return;
 
     navigate('/payment', {
       state: {
@@ -64,16 +57,12 @@ const SeatSelection = () => {
         departureTime: busInfo.departureTime,
         arrivalTime: busInfo.arrivalTime,
         busType: busInfo.busType,
-        selectedSeats: selectedSeats.sort((a, b) => a - b),
+        selectedSeats: selectedSeats.slice().sort((a, b) => a - b),
         totalFare: totalFare,
         farePerSeat: busInfo.fare,
         passengers: selectedSeats.length,
       },
     });
-  };
-
-  const handleCancelConfirm = () => {
-    setShowBookingConfirm(false);
   };
 
   const handleContinueShopping = () => {
@@ -261,7 +250,7 @@ const SeatSelection = () => {
                   onClick={handleProceedToBooking}
                   disabled={selectedSeats.length === 0}
                 >
-                  {selectedSeats.length === 0 ? 'Select Seats to Proceed' : 'Proceed to Booking'}
+                  {selectedSeats.length === 0 ? 'Select Seats to Continue' : 'Continue to Payment'}
                 </button>
 
                 <button className="continue-shopping-btn" onClick={handleContinueShopping}>
@@ -269,12 +258,11 @@ const SeatSelection = () => {
                 </button>
               </div>
 
-              {/* Info Box */}
               {selectedSeats.length > 0 && (
                 <div className="booking-info">
                   <p>
-                    <strong>Ready to book?</strong> You have selected {selectedSeats.length} seat
-                    {selectedSeats.length !== 1 ? 's' : ''} for a total of ₹{totalFare}
+                    <strong>{selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''} selected.</strong> Total payable
+                    amount is ₹{totalFare}.
                   </p>
                 </div>
               )}
@@ -283,48 +271,6 @@ const SeatSelection = () => {
         </div>
       </div>
 
-      {/* Booking Confirmation Modal */}
-      {showBookingConfirm && (
-        <div className="modal-overlay" onClick={handleCancelConfirm}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Confirm Your Booking</h2>
-              <button className="modal-close" onClick={handleCancelConfirm}>
-                ✕
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="booking-details">
-                <div className="detail-row">
-                  <span className="detail-label">Bus</span>
-                  <span className="detail-value">{busInfo.busName}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Route</span>
-                  <span className="detail-value">{busInfo.from} → {busInfo.to}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Selected Seats</span>
-                  <span className="detail-value">{selectedSeats.sort((a, b) => a - b).join(', ')}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Total Fare</span>
-                  <span className="detail-value">₹{totalFare}</span>
-                </div>
-              </div>
-              <div className="modal-actions">
-                <button className="confirm-btn" onClick={handleConfirmBooking}>
-                  Confirm Booking
-                </button>
-                <button className="cancel-btn" onClick={handleCancelConfirm}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -22,29 +22,48 @@ const SeatLayout = ({ seats, selectedSeats, bookedSeats, onSeatSelect, farePerSe
       <div className="seat-layout">
         <div className="seat-layout-header">
           <h3>Select Your Seats</h3>
-          <p>Click on seats to select/deselect</p>
+          <p>Tap on a seat to select or deselect it.</p>
         </div>
 
-        <div className="seats-grid">
-          {seats.map((row, rowIndex) => (
-            <div key={rowIndex} className="seat-row">
-              {row.map((seatNumber) => {
-                const status = getSeatStatus(seatNumber);
-                return (
-                  <button
-                    key={seatNumber}
-                    className={`seat seat-${status}`}
-                    onClick={() => handleSeatClick(seatNumber)}
-                    disabled={status === 'booked'}
-                    title={`Seat ${seatNumber}`}
-                  >
-                    {seatNumber}
-                  </button>
-                );
-              })}
-              {rowIndex % 2 === 0 && <div className="aisle"></div>}
-            </div>
-          ))}
+        <div className="bus-frame">
+          <div className="driver-area">Driver</div>
+          <div className="seats-grid">
+            {seats.map((row, rowIndex) => (
+              <div key={rowIndex} className="seat-row">
+                {row.slice(0, 2).map((seatNumber) => {
+                  const status = getSeatStatus(seatNumber);
+                  return (
+                    <button
+                      key={seatNumber}
+                      className={`seat seat-${status}`}
+                      onClick={() => handleSeatClick(seatNumber)}
+                      disabled={status === 'booked'}
+                      title={`Seat ${seatNumber}`}
+                    >
+                      {seatNumber}
+                    </button>
+                  );
+                })}
+
+                <div className="aisle"></div>
+
+                {row.slice(2).map((seatNumber) => {
+                  const status = getSeatStatus(seatNumber);
+                  return (
+                    <button
+                      key={seatNumber}
+                      className={`seat seat-${status}`}
+                      onClick={() => handleSeatClick(seatNumber)}
+                      disabled={status === 'booked'}
+                      title={`Seat ${seatNumber}`}
+                    >
+                      {seatNumber}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="seat-legend">

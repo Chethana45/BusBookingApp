@@ -1821,7 +1821,7 @@ body {
 /* Bus Details Page */
 .bus-details-container {
   background-color: var(--light-bg);
-  padding: 2rem;
+  padding: 1.5rem;
   min-height: calc(100vh - 80px);
 }
 
@@ -1829,17 +1829,21 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-areas:
+    "image sidebar"
+    "details sidebar";
+  gap: 1.5rem;
   align-items: start;
 }
 
 /* Bus Image Section */
 .bus-image-section {
+  grid-area: image;
   position: relative;
-  border-radius: 10px;
+  border-radius: 16px;
   overflow: hidden;
-  height: 400px;
+  height: 320px;
   box-shadow: var(--shadow-lg);
 }
 
@@ -1870,9 +1874,10 @@ body {
 
 /* Bus Details Content */
 .bus-details-content {
+  grid-area: details;
   background-color: var(--white);
-  border-radius: 10px;
-  padding: 2rem;
+  border-radius: 16px;
+  padding: 1.75rem;
   box-shadow: var(--shadow);
 }
 
@@ -1933,12 +1938,38 @@ body {
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.6;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.highlight-card {
+  background-color: var(--light-bg);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--border-color);
+}
+
+.highlight-card span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.highlight-card strong {
+  font-size: 1.1rem;
+  color: var(--text-dark);
 }
 
 /* Journey Details Section */
 .journey-details-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 .journey-details-section h2 {
@@ -2195,8 +2226,10 @@ body {
 
 /* Booking Sidebar */
 .booking-sidebar {
+  grid-area: sidebar;
   position: sticky;
   top: 100px;
+  align-self: start;
 }
 
 .fare-card {
@@ -2274,20 +2307,22 @@ body {
   color: var(--primary-color);
 }
 
+.select-seats-btn,
 .book-now-btn {
   width: 100%;
-  padding: 1rem;
+  padding: 1.1rem;
   background-color: var(--primary-color);
   color: var(--white);
   border: none;
-  border-radius: 5px;
+  border-radius: 14px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
   margin-bottom: 1.5rem;
 }
 
+.select-seats-btn:hover,
 .book-now-btn:hover {
   background-color: var(--primary-dark);
   transform: translateY(-2px);
@@ -2304,10 +2339,89 @@ body {
   margin: 0;
 }
 
-/* Responsive Design for Bus Details */
+/* Scoped Bus Details Page Overrides */
+.bus-details-page .bus-details-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-areas:
+    "image sidebar"
+    "details sidebar";
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.bus-details-page .bus-image-section {
+  grid-area: image;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 320px;
+  box-shadow: var(--shadow-lg);
+}
+
+.bus-details-page .bus-details-content {
+  grid-area: details;
+  background-color: var(--white);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+}
+
+.bus-details-page .detail-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.bus-details-page .highlight-card {
+  background-color: var(--light-bg);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--border-color);
+}
+
+.bus-details-page .highlight-card span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.bus-details-page .highlight-card strong {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+}
+
+.bus-details-page .select-seats-btn {
+  width: 100%;
+  padding: 1.1rem;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.bus-details-page .select-seats-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
 @media (max-width: 1024px) {
   .bus-details-wrapper {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "image"
+      "details"
+      "sidebar";
   }
 
   .booking-sidebar {
@@ -2854,6 +2968,40 @@ body {
   font-size: 0.9rem;
 }
 
+.bus-frame {
+  background-color: #f8fbff;
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.driver-area {
+  width: 100%;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  background-color: rgba(59, 130, 246, 0.08);
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.seat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.aisle {
+  width: 2rem;
+  min-width: 2rem;
+}
+
 /* Enhanced Seat Action Card */
 .seat-action-card {
   background-color: var(--white);
@@ -3318,25 +3466,302 @@ body {
   padding: 2rem;
 }
 
-.payment-content {
+.payment-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.75rem;
+  width: min(1200px, 100%);
+}
+
+.payment-card {
   background-color: var(--white);
-  border-radius: 10px;
-  padding: 3rem;
-  box-shadow: var(--shadow-lg);
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  padding: 1.75rem;
+}
+
+.payment-card.empty-state-card {
+  max-width: 560px;
   text-align: center;
-  max-width: 600px;
 }
 
-.payment-content h1 {
-  font-size: 2rem;
+.payment-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: min(1200px, 100%);
+  margin: 0 auto 1.5rem;
+}
+
+.section-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.payment-page-header .eyebrow {
+  margin: 0 0 0.75rem 0;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.payment-page-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 2.2vw, 2.6rem);
   color: var(--text-dark);
-  margin-bottom: 1rem;
 }
 
-.payment-content p {
-  color: var(--text-muted);
+.header-copy {
+  margin: 0.75rem 0 0;
+  color: var(--text-secondary);
+  max-width: 600px;
+  line-height: 1.8;
+}
+
+.payment-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.section-head span {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.detail-row,
+.route-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.route-row {
+  gap: 1.5rem;
+}
+
+.detail-label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.detail-value {
+  margin: 0;
   font-size: 1rem;
-  margin: 0.5rem 0;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.badge {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.selected-seats-card {
+  margin: 1.5rem 0;
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.selected-seats-card h3 {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+}
+
+.seat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.seat-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.form-grid input {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--surface);
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.form-grid input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.payment-method-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.payment-method-grid-large {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.payment-method {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.8rem;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: var(--surface);
+  color: var(--text-dark);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.payment-method:hover {
+  transform: translateY(-1px);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.payment-method.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.08));
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.payment-method .method-label {
+  text-transform: none;
+}
+
+.fare-card {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 18px;
+  padding: 1.2rem 1.2rem 1rem;
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.payment-summary-due {
+  padding: 1.6rem 1.4rem 1.2rem;
+}
+
+.fare-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.amount-due {
+  font-size: 1.2rem;
+  padding-top: 0.8rem;
+}
+
+.fare-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.8rem;
+  font-size: 1.15rem;
+  color: var(--text-dark);
+  font-weight: 700;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.pay-now-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.payment-note {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 980px) {
+  .payment-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .payment-container {
+    padding: 1rem;
+  }
+
+  .payment-card {
+    padding: 1.25rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-method-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Booking Confirmation Page */
@@ -3350,35 +3775,40 @@ body {
 }
 
 .booking-confirmation-card {
-  max-width: 800px;
+  max-width: 900px;
   width: 100%;
   background-color: var(--white);
-  border-radius: 16px;
+  border-radius: 24px;
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
+.no-booking-card {
+  max-width: 560px;
+}
+
 .confirmation-header {
-  padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2.25rem 2rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(79, 70, 229, 0.9));
   color: var(--white);
   text-align: center;
 }
 
 .confirmation-icon {
-  font-size: 3rem;
+  font-size: 3.25rem;
   margin-bottom: 1rem;
 }
 
 .confirmation-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: clamp(2rem, 2.5vw, 2.5rem);
 }
 
 .confirmation-message {
-  margin-top: 0.75rem;
-  color: rgba(255, 255, 255, 0.9);
+  margin-top: 0.85rem;
+  color: rgba(255, 255, 255, 0.92);
   font-size: 1rem;
+  line-height: 1.8;
 }
 
 .confirmation-summary {
@@ -3390,12 +3820,12 @@ body {
 
 .summary-block {
   background-color: var(--light-bg);
-  border-radius: 10px;
-  padding: 1.1rem 1.25rem;
+  border-radius: 16px;
+  padding: 1.35rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .summary-label {
@@ -3413,7 +3843,7 @@ body {
 
 .total-fare-block {
   grid-column: 1 / -1;
-  background: linear-gradient(90deg, #e9f5ff, #d7ebff);
+  background: linear-gradient(90deg, rgba(227, 244, 255, 0.95), rgba(217, 234, 255, 0.95));
 }
 
 .confirmation-actions {
@@ -3424,14 +3854,18 @@ body {
   padding: 1.5rem 2rem 2rem;
 }
 
+.confirmation-actions.justify-center {
+  justify-content: center;
+}
+
 .primary-btn,
 .secondary-btn {
   padding: 0.95rem 1.75rem;
-  border-radius: 8px;
+  border-radius: 12px;
   border: none;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .primary-btn {
@@ -3447,6 +3881,36 @@ body {
   background-color: transparent;
   color: var(--primary-color);
   border: 2px solid var(--primary-color);
+}
+
+@media (max-width: 980px) {
+  .confirmation-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .booking-confirmation-page {
+    padding: 1rem;
+  }
+
+  .booking-confirmation-card {
+    border-radius: 18px;
+  }
+
+  .confirmation-header {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .confirmation-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+  }
 }
 
 .secondary-btn:hover {
@@ -4225,12 +4689,8 @@ body {
   overflow: hidden;
 }
 
-.confirmation-header {
-  padding: 2.5rem 2rem;
-}
-
 .confirmation-summary {
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .summary-block {
@@ -4238,7 +4698,7 @@ body {
 }
 
 .total-fare-block {
-  background: linear-gradient(180deg, rgba(102, 126, 234, 0.18), rgba(102, 126, 234, 0.06));
+  background: linear-gradient(90deg, rgba(227, 244, 255, 0.95), rgba(217, 234, 255, 0.95));
 }
 
 .booking-history-container {
