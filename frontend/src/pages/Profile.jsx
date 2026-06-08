@@ -1,0 +1,441 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const Profile = () => {
+  const navigate = useNavigate();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+  // Dummy user data
+  const [userProfile, setUserProfile] = useState({
+    firstName: 'Rajesh',
+    lastName: 'Kumar',
+    email: 'rajesh.kumar@email.com',
+    phone: '9876543210',
+    address: '123 Main Street, New Delhi, India',
+    city: 'New Delhi',
+    state: 'Delhi',
+    zipCode: '110001',
+    dateOfBirth: '1990-05-15',
+    gender: 'Male',
+  });
+
+  const [formData, setFormData] = useState({ ...userProfile });
+
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const [passwordErrors, setPasswordErrors] = useState({});
+
+  const accountStats = [
+    { label: 'Total Bookings', value: '5', icon: '🎫' },
+    { label: 'Completed Trips', value: '4', icon: '✅' },
+    { label: 'Cancelled Bookings', value: '1', icon: '❌' },
+    { label: 'Loyalty Points', value: '2,450', icon: '⭐' },
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData({
+      ...passwordData,
+      [name]: value,
+    });
+    setPasswordErrors({ ...passwordErrors, [name]: '' });
+  };
+
+  const handleSaveProfile = () => {
+    setUserProfile({ ...formData });
+    setIsEditMode(false);
+    alert('Profile updated successfully!');
+  };
+
+  const handleCancelEdit = () => {
+    setFormData({ ...userProfile });
+    setIsEditMode(false);
+  };
+
+  const handleChangePassword = () => {
+    const errors = {};
+
+    if (!passwordData.currentPassword) {
+      errors.currentPassword = 'Current password is required';
+    }
+    if (!passwordData.newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (passwordData.newPassword.length < 8) {
+      errors.newPassword = 'Password must be at least 8 characters';
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      return;
+    }
+
+    alert('Password changed successfully!');
+    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setShowPasswordForm(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    alert('Logged out successfully');
+    navigate('/');
+  };
+
+  return (
+    <div className="profile-container">
+      <div className="profile-header">
+        <div className="profile-header-content">
+          <div className="profile-avatar">
+            <span className="avatar-icon">👤</span>
+          </div>
+          <div className="profile-header-info">
+            <h1>
+              {userProfile.firstName} {userProfile.lastName}
+            </h1>
+            <p>{userProfile.email}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="profile-wrapper">
+        {/* Sidebar Stats */}
+        <div className="profile-stats">
+          {accountStats.map((stat, index) => (
+            <div key={index} className="stat-card">
+              <div className="stat-icon">{stat.icon}</div>
+              <div className="stat-info">
+                <div className="stat-value">{stat.value}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Profile Tabs */}
+        <div className="profile-tabs">
+          <div className="tabs-header">
+            <button
+              className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('profile');
+                setIsEditMode(false);
+              }}
+            >
+              👤 Personal Info
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('settings');
+                setShowPasswordForm(false);
+              }}
+            >
+              ⚙️ Settings
+            </button>
+            <button className="tab-btn danger" onClick={handleLogout}>
+              🚪 Logout
+            </button>
+          </div>
+
+          {/* Profile Tab */}
+          {activeTab === 'profile' && (
+            <div className="tab-content">
+              {!isEditMode ? (
+                <div className="profile-view">
+                  <div className="profile-section">
+                    <h2>Personal Information</h2>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">First Name</span>
+                        <span className="info-value">{userProfile.firstName}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Last Name</span>
+                        <span className="info-value">{userProfile.lastName}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Email</span>
+                        <span className="info-value">{userProfile.email}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Phone</span>
+                        <span className="info-value">{userProfile.phone}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Date of Birth</span>
+                        <span className="info-value">{userProfile.dateOfBirth}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Gender</span>
+                        <span className="info-value">{userProfile.gender}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="profile-section">
+                    <h2>Address</h2>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">Address</span>
+                        <span className="info-value">{userProfile.address}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">City</span>
+                        <span className="info-value">{userProfile.city}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">State</span>
+                        <span className="info-value">{userProfile.state}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">ZIP Code</span>
+                        <span className="info-value">{userProfile.zipCode}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button className="edit-btn" onClick={() => setIsEditMode(true)}>
+                    ✏️ Edit Profile
+                  </button>
+                </div>
+              ) : (
+                <div className="profile-form">
+                  <h2>Edit Personal Information</h2>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>First Name</label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Last Name</label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Phone</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Date of Birth</label>
+                      <input
+                        type="date"
+                        name="dateOfBirth"
+                        value={formData.dateOfBirth}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Gender</label>
+                      <select name="gender" value={formData.gender} onChange={handleInputChange}>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                    <div className="form-group full-width">
+                      <label>Address</label>
+                      <textarea
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        rows="3"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>City</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>State</label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>ZIP Code</label>
+                      <input
+                        type="text"
+                        name="zipCode"
+                        value={formData.zipCode}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-actions">
+                    <button className="save-btn" onClick={handleSaveProfile}>
+                      ✅ Save Changes
+                    </button>
+                    <button className="cancel-btn" onClick={handleCancelEdit}>
+                      ❌ Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Settings Tab */}
+          {activeTab === 'settings' && (
+            <div className="tab-content">
+              <div className="settings-section">
+                <h2>Account Settings</h2>
+
+                {!showPasswordForm ? (
+                  <div className="settings-option">
+                    <div className="setting-info">
+                      <h3>Change Password</h3>
+                      <p>Update your password to keep your account secure</p>
+                    </div>
+                    <button
+                      className="change-password-btn"
+                      onClick={() => setShowPasswordForm(true)}
+                    >
+                      🔐 Change Password
+                    </button>
+                  </div>
+                ) : (
+                  <div className="password-form">
+                    <h3>Change Password</h3>
+                    <div className="form-group">
+                      <label>Current Password</label>
+                      <input
+                        type="password"
+                        name="currentPassword"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        placeholder="Enter your current password"
+                      />
+                      {passwordErrors.currentPassword && (
+                        <span className="error-text">{passwordErrors.currentPassword}</span>
+                      )}
+                    </div>
+
+                    <div className="form-group">
+                      <label>New Password</label>
+                      <input
+                        type="password"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        placeholder="Enter new password (min 8 characters)"
+                      />
+                      {passwordErrors.newPassword && (
+                        <span className="error-text">{passwordErrors.newPassword}</span>
+                      )}
+                    </div>
+
+                    <div className="form-group">
+                      <label>Confirm Password</label>
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        placeholder="Re-enter new password"
+                      />
+                      {passwordErrors.confirmPassword && (
+                        <span className="error-text">{passwordErrors.confirmPassword}</span>
+                      )}
+                    </div>
+
+                    <div className="form-actions">
+                      <button className="save-btn" onClick={handleChangePassword}>
+                        ✅ Update Password
+                      </button>
+                      <button
+                        className="cancel-btn"
+                        onClick={() => {
+                          setShowPasswordForm(false);
+                          setPasswordData({
+                            currentPassword: '',
+                            newPassword: '',
+                            confirmPassword: '',
+                          });
+                          setPasswordErrors({});
+                        }}
+                      >
+                        ❌ Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="settings-section">
+                  <h3>Preferences</h3>
+                  <div className="preference-item">
+                    <label>
+                      <input type="checkbox" defaultChecked />
+                      <span>Receive booking confirmations via email</span>
+                    </label>
+                  </div>
+                  <div className="preference-item">
+                    <label>
+                      <input type="checkbox" defaultChecked />
+                      <span>Receive promotional offers</span>
+                    </label>
+                  </div>
+                  <div className="preference-item">
+                    <label>
+                      <input type="checkbox" />
+                      <span>Receive SMS notifications</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Profile;
