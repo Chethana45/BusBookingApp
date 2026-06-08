@@ -1,16 +1,184 @@
-# React + Vite
+# 🎨 Frontend - AI-Powered Bus Booking Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Overview
 
-Currently, two official plugins are available:
+This repository contains the frontend implementation of the AI-Powered Bus Booking Application developed using React.js. The frontend provides a responsive and user-friendly interface for searching buses, selecting seats, managing bookings, and interacting with the AI chatbot.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Authentication
 
-## Expanding the ESLint configuration
+* User Registration
+* User Login
+* Form Validation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Bus Booking
+
+* Search Available Buses
+* View Bus Details
+* Seat Selection
+* Payment Interface
+* Booking Confirmation
+* Booking History
+
+### AI Integration UI
+
+* Chatbot Widget Interface
+* Real-time Chat Window
+* User-Friendly Messaging Layout
+
+### User Experience
+
+* Responsive Design
+* Modern UI Components
+* Smooth Navigation
+* Mobile-Friendly Layout
+
+---
+
+## 🛠️ Tech Stack
+
+* React.js
+* React Router DOM
+* Axios
+* JavaScript (ES6+)
+* CSS3
+
+---
+
+## 📂 Project Structure
+
+```text
+src/
+│
+├── components/
+│   ├── Navbar.jsx
+│   ├── BusCard.jsx
+│   ├── SeatLayout.jsx
+│   └── ChatbotWidget.jsx
+│
+├── pages/
+│   ├── Home.jsx
+│   ├── Login.jsx
+│   ├── Register.jsx
+│   ├── SearchBus.jsx
+│   ├── BusDetails.jsx
+│   ├── SeatSelection.jsx
+│   ├── Payment.jsx
+│   ├── BookingConfirmation.jsx
+│   └── BookingHistory.jsx
+│
+├── services/
+│   ├── api.js
+│   ├── authService.js
+│   ├── busService.js
+│   └── bookingService.js
+│
+├── data/
+│   ├── buses.js
+│   └── bookings.js
+│
+├── App.jsx
+└── main.jsx
+```
+
+---
+
+## 📄 Implemented Pages
+
+### Home Page
+
+* Bus Search Form
+* Navigation Bar
+* Responsive Hero Section
+
+### Login Page
+
+* Email & Password Login
+* Validation Support
+
+### Registration Page
+
+* User Signup Form
+* Input Validation
+
+### Search Results Page
+
+* Bus Listing Cards
+* Travel Information Display
+
+### Bus Details Page
+
+* Bus Information
+* Route Details
+* Amenities
+
+### Seat Selection Page
+
+* Interactive Seat Layout
+* Dynamic Fare Calculation
+
+### Payment Page
+
+* Fare Summary
+* Payment Method Selection
+
+### Booking Confirmation Page
+
+* Booking Success Message
+* Ticket Details
+
+### Booking History Page
+
+* Previous Bookings Display
+
+### Chatbot Widget
+
+* Floating Chat Button
+* Chat Window Interface
+* Dummy Bot Responses
+
+---
+
+## ⚙️ Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+```
+
+Navigate to frontend:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run development server:
+
+```bash
+npm run dev
+```
+
+---
+
+## 🎯 Frontend Objectives
+
+* Create an intuitive bus booking experience.
+* Provide responsive design across devices.
+* Enable smooth navigation between booking steps.
+* Prepare UI for backend and AI integration.
+* Deliver a professional user experience.
+
+---
+
+
+Frontend Developer – AI-Powered Bus Booking Application
