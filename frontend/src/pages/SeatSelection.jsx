@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import SeatLayout from '../components/SeatLayout';
-import { getBusById } from '../data/buses';
+import { getBusById } from '../services/busService';
 
 const SeatSelection = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { busId } = useParams();
   const [busInfo, setBusInfo] = useState(null);
   const [bookedSeats, setBookedSeats] = useState([]);
@@ -13,23 +14,48 @@ const SeatSelection = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    setError('');
-    const timer = setTimeout(() => {
-      const id = busId ? parseInt(busId, 10) : 1;
-      const data = getBusById(id);
-      if (!data) {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        if (!busId) {
+          throw new Error('Invalid bus identifier');
+        }
+
+        // Call backend with the string ObjectId directly
+        let data = await getBusById(busId);
+
+        // Normalize possible wrapped responses from the API
+        if (data && data.data) data = data.data;
+        if (Array.isArray(data)) data = data[0] || null;
+        if (!mounted) return;
+        if (!data) {
+          setError('Unable to load the selected bus. Please return to search and choose another route.');
+          setBusInfo(null);
+        } else {
+          setBusInfo(data);
+          // normalize booked seats to numbers so `includes` checks work reliably
+          setBookedSeats((data.bookedSeats || []).map((s) => (typeof s === 'number' ? s : Number(s))));
+        }
+      } catch (err) {
+        console.error('Failed to load bus for seat selection', err);
+        if (!mounted) return;
         setError('Unable to load the selected bus. Please return to search and choose another route.');
         setBusInfo(null);
-      } else {
-        setBusInfo(data);
-        setBookedSeats(data.bookedSeats || []);
+      } finally {
+        if (mounted) {
+          setSelectedSeats([]);
+          setLoading(false);
+        }
       }
-      setSelectedSeats([]);
-      setLoading(false);
-    }, 500);
+    };
 
-    return () => clearTimeout(timer);
+    load();
+
+    return () => {
+      mounted = false;
+    };
   }, [busId]);
 
   const handleSeatSelect = (seatNumber) => {
@@ -44,25 +70,20 @@ const SeatSelection = () => {
   const availableSeatsCount = busInfo ? busInfo.totalSeats - bookedSeats.length : 0;
 
   const handleProceedToBooking = () => {
-    if (selectedSeats.length === 0) {
+    if (selectedSeats.length === 0 || !busInfo) {
       return;
     }
-
-    navigate('/payment', {
-      state: {
-        busId: busInfo.id,
-        busName: busInfo.busName,
-        from: busInfo.from,
-        to: busInfo.to,
-        departureTime: busInfo.departureTime,
-        arrivalTime: busInfo.arrivalTime,
-        busType: busInfo.busType,
-        selectedSeats: selectedSeats.slice().sort((a, b) => a - b),
-        totalFare: totalFare,
-        farePerSeat: busInfo.fare,
-        passengers: selectedSeats.length,
-      },
-    });
+navigate('/payment', {
+  state: {
+    bus: busInfo,
+    busId: busInfo._id,
+    selectedSeats: selectedSeats.slice().sort((a, b) => a - b),
+    travelDate: location.state?.travelDate || busInfo.travelDate || '',
+    totalFare,
+    farePerSeat: busInfo.fare,
+  },
+});
+    
   };
 
   const handleContinueShopping = () => {

@@ -1,32 +1,35 @@
 import api from './api';
-import { buses, getBusById as getBusByIdData, getBusesByRoute } from '../data/buses';
 
 export const getAvailableBuses = async () => {
-  // Replace with: return api.get('/buses').then(res => res.data);
-  const available = buses.filter((bus) => bus.availableSeats > 0);
-  return Promise.resolve(available);
+  const res = await api.get('/buses');
+
+  console.log("BUS DATA:", res.data);
+
+  // Handle both array and wrapped response formats
+  const buses = Array.isArray(res.data) ? res.data : res.data?.data || [];
+  return buses;
 };
 
 export const getBusById = async (id) => {
-  // Replace with: return api.get(`/buses/${id}`).then(res => res.data);
-  const bus = getBusByIdData(id);
-  if (!bus) {
-    return Promise.reject(new Error('Bus not found.'));
-  }
-  return Promise.resolve(bus);
+  const res = await api.get(`/buses/${id}`);
+  return res.data;
 };
-
 export const searchBuses = async ({ from, to }) => {
-  // Replace with: return api.get('/buses', { params: { from, to } }).then(res => res.data);
-  if (!from || !to) {
-    return Promise.resolve([]);
-  }
-  const results = getBusesByRoute(from, to);
-  return Promise.resolve(results);
+  const res = await api.get('/buses');
+
+  // Handle both array and wrapped response formats
+  const buses = Array.isArray(res.data) ? res.data : res.data?.data || [];
+  
+  return buses.filter(
+    (bus) =>
+      bus.from?.toLowerCase().trim() === from?.toLowerCase().trim() &&
+      bus.to?.toLowerCase().trim() === to?.toLowerCase().trim()
+  );
 };
 
 export const getBusesByType = async (type) => {
-  // Replace with: return api.get('/buses', { params: { type } }).then(res => res.data);
-  const filtered = buses.filter((bus) => bus.busType.toLowerCase() === type.toLowerCase());
-  return Promise.resolve(filtered);
+  const res = await api.get('/buses', { params: { type } });
+  // Handle both array and wrapped response formats
+  const buses = Array.isArray(res.data) ? res.data : res.data?.data || [];
+  return buses;
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -81,27 +83,52 @@ const Register = () => {
     }
 
     setLoading(true);
+    setErrors({});
+    setSuccessMessage('');
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.post('/auth/register', {
-      //   fullName: formData.fullName,
-      //   email: formData.email,
-      //   phoneNumber: formData.phoneNumber,
-      //   password: formData.password,
-      // });
-      // localStorage.setItem('authToken', response.data.token);
+      const payload = {
+        name: formData.fullName,
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
+      };
 
-      // For now, simulate registration
-      console.log('Registration attempt:', formData);
-      setTimeout(() => {
-        alert('Registration successful! Redirecting to login...');
-        navigate('/login');
-        setLoading(false);
-      }, 1000);
+      const response = await api.post('/auth/register', payload);
+
+      const message = response?.data?.message || 'Registration successful. Please login.';
+      setSuccessMessage(message);
+
+      // If backend returns a token, you may store it (optional)
+      const token = response?.data?.token || response?.data?.authToken;
+      if (token) {
+        localStorage.setItem('authToken', token);
+        // Dispatch custom event to notify Navbar of login
+        window.dispatchEvent(new Event('authChange'));
+        // If token is returned, user is auto-logged in, redirect to home
+        setTimeout(() => {
+          navigate('/');
+        }, 900);
+      } else {
+        // No token returned, redirect to login
+        setTimeout(() => {
+          navigate('/login');
+        }, 900);
+      }
     } catch (error) {
-      setErrors({
-        submit: error.response?.data?.message || 'Registration failed. Please try again.',
-      });
+      console.error('Registration error:', error);
+      const resp = error?.response?.data;
+      const message = resp?.message || resp?.error || 'Registration failed. Please try again.';
+      // If backend returns field errors, map them to form fields
+      if (resp && typeof resp === 'object' && resp.errors) {
+        const fieldErrors = {};
+        resp.errors.forEach((err) => {
+          if (err.param) fieldErrors[err.param] = err.msg || err.message;
+        });
+        setErrors(fieldErrors);
+      }
+      setErrors((prev) => ({ ...prev, submit: message }));
+    } finally {
       setLoading(false);
     }
   };

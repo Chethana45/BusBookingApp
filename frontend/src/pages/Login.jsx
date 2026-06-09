@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -54,21 +55,32 @@ const Login = () => {
 
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.post('/auth/login', formData);
-      // localStorage.setItem('authToken', response.data.token);
-      
-      // For now, simulate login
-      console.log('Login attempt:', formData);
-      setTimeout(() => {
-        localStorage.setItem('authToken', 'dummy-token');
-        navigate('/');
-        setLoading(false);
-      }, 1000);
-    } catch (error) {
-      setErrors({
-        submit: error.response?.data?.message || 'Login failed. Please try again.',
+      const response = await api.post('/auth/login', {
+        email: formData.email,
+        password: formData.password,
       });
+
+      const token = response?.data?.token || response?.data?.authToken;
+      if (token) {
+        localStorage.setItem('authToken', token);
+      }
+
+      // Optionally save user info if returned
+      if (response?.data?.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+
+      // Dispatch custom event to notify Navbar of login
+      window.dispatchEvent(new Event('authChange'));
+
+      setErrors({});
+      navigate('/');
+    } catch (error) {
+      console.error('Login error:', error);
+      const message =
+        error?.response?.data?.message || error?.response?.data?.error || 'Login failed. Please check your credentials and try again.';
+      setErrors({ submit: message });
+    } finally {
       setLoading(false);
     }
   };

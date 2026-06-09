@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { bookings } from '../data/bookings';
+import api from '../services/api';
 
 const BookingHistory = () => {
   const navigate = useNavigate();
@@ -10,19 +10,29 @@ const BookingHistory = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    setError('');
-    const timer = setTimeout(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      setError('');
       try {
-        setBookingsData(bookings);
+        const res = await api.get('/bookings');
+        if (!mounted) return;
+        // expect res.data to be an array of bookings
+        setBookingsData(res.data || []);
       } catch (err) {
+        console.error('Failed to load bookings', err);
+        if (!mounted) return;
         setError('Unable to load booking history. Please refresh or try again later.');
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
-    }, 500);
+    };
 
-    return () => clearTimeout(timer);
+    load();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const filteredBookings = bookingsData.filter((booking) => {

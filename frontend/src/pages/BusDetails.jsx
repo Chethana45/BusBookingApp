@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { getBusById } from '../data/buses';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { getBusById } from '../services/busService';
 
 const placeholderImage = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23edf2f7'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='32' fill='%23666'%3EBus%20image%20unavailable%3C/text%3E%3C/svg%3E";
 
@@ -31,35 +31,55 @@ const getAmenityIcon = (amenity) => {
 
 const BusDetails = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { busId } = useParams();
   const [busDetails, setBusDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [imageSrc, setImageSrc] = useState(placeholderImage);
+  const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    setError('');
-    const timer = setTimeout(() => {
-      const id = busId ? parseInt(busId, 10) : 1;
-      const data = getBusById(id);
-      if (!data) {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const data = await getBusById(busId);
+        if (!mounted) return;
+        if (!data) {
+          setError('Bus details not found. Please return to search and select another bus.');
+          setBusDetails(null);
+            setImageFailed(false);
+        } else {
+          setBusDetails(data);
+            // reset any previous image failure when new data arrives
+            setImageFailed(false);
+        }
+      } catch (err) {
+        console.error('Failed loading bus details', err);
+        if (!mounted) return;
         setError('Bus details not found. Please return to search and select another bus.');
         setBusDetails(null);
-        setImageSrc(placeholderImage);
-      } else {
-        setBusDetails(data);
-        setImageSrc(data.image || placeholderImage);
+          setImageFailed(false);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
-    }, 500);
+    };
 
-    return () => clearTimeout(timer);
+    load();
+
+    return () => {
+      mounted = false;
+    };
   }, [busId]);
 
   const handleSelectSeats = () => {
     if (busDetails) {
-      navigate(`/seat-selection/${busDetails.id}`);
+      navigate(`/seat-selection/${busDetails._id}`, {
+        state: {
+          travelDate: location.state?.travelDate || busDetails.travelDate || '',
+        },
+      });
     }
   };
 
@@ -94,10 +114,10 @@ const BusDetails = () => {
       <div className="bus-details-wrapper">
         <div className="bus-image-section">
           <img
-            src={imageSrc}
+            src={busDetails?.image ? (imageFailed ? placeholderImage : busDetails.image) : placeholderImage}
             alt={busDetails?.busName || 'Bus details'}
             className="bus-image"
-            onError={() => setImageSrc(placeholderImage)}
+            onError={() => setImageFailed(true)}
           />
           <div className="bus-overlay-info">
             <div className="operator-badge">{busDetails.operator}</div>

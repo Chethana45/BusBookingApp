@@ -2,44 +2,64 @@ import api from './api';
 import { bookings } from '../data/bookings';
 
 export const getBookings = async (filter = 'all') => {
-  // Replace with: return api.get('/bookings', { params: { status: filter } }).then(res => res.data);
-  if (filter === 'all') {
-    return Promise.resolve([...bookings]);
+  try {
+    const res = await api.get('/bookings', { params: filter === 'all' ? {} : { status: filter } });
+    const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
+    return data;
+  } catch (err) {
+    // Fallback to in-memory data for offline/dev
+    if (filter === 'all') return Promise.resolve([...bookings]);
+    return Promise.resolve(bookings.filter((booking) => booking.status === filter));
   }
-  return Promise.resolve(bookings.filter((booking) => booking.status === filter));
 };
 
 export const getBookingById = async (bookingId) => {
-  // Replace with: return api.get(`/bookings/${bookingId}`).then(res => res.data);
-  const booking = bookings.find((item) => item.id === bookingId || item.id === parseInt(bookingId, 10));
-  if (!booking) {
-    return Promise.reject(new Error('Booking not found.'));
+  try {
+    const res = await api.get(`/bookings/${bookingId}`);
+    const data = res.data;
+    return data;
+  } catch (err) {
+    // Fallback to in-memory lookup without parseInt on ObjectId strings
+    const booking = bookings.find((item) => item.id === bookingId || String(item.id) === String(bookingId));
+    if (!booking) {
+      return Promise.reject(new Error('Booking not found.'));
+    }
+    return Promise.resolve(booking);
   }
-  return Promise.resolve(booking);
 };
 
 export const createBooking = async (payload) => {
-  // Replace with: return api.post('/bookings', payload).then(res => res.data);
-  const nextId = bookings.length ? Math.max(...bookings.map((item) => item.id)) + 1 : 1;
-  const newBooking = {
-    id: nextId,
-    bookingDate: new Date().toISOString().split('T')[0],
-    status: 'confirmed',
-    paymentMode: 'UPI',
-    cancellationDate: null,
-    ...payload,
-  };
-  bookings.unshift(newBooking);
-  return Promise.resolve(newBooking);
+  try {
+    const res = await api.post('/bookings', payload);
+    return res.data;
+  } catch (err) {
+    // Fallback to an in-memory create when API unavailable
+    const nextId = bookings.length ? Math.max(...bookings.map((item) => Number(item.id) || 0)) + 1 : 1;
+    const newBooking = {
+      id: nextId,
+      bookingDate: new Date().toISOString().split('T')[0],
+      status: 'confirmed',
+      paymentMode: 'UPI',
+      cancellationDate: null,
+      ...payload,
+    };
+    bookings.unshift(newBooking);
+    return Promise.resolve(newBooking);
+  }
 };
 
 export const cancelBooking = async (bookingId) => {
-  // Replace with: return api.post(`/bookings/${bookingId}/cancel`).then(res => res.data);
-  const booking = bookings.find((item) => item.id === bookingId || item.id === parseInt(bookingId, 10));
-  if (!booking) {
-    return Promise.reject(new Error('Booking not found.'));
+  try {
+    const res = await api.post(`/bookings/${bookingId}/cancel`);
+    return res.data;
+  } catch (err) {
+    // Fallback to in-memory cancellation
+    const booking = bookings.find((item) => item.id === bookingId || String(item.id) === String(bookingId));
+    if (!booking) {
+      return Promise.reject(new Error('Booking not found.'));
+    }
+    booking.status = 'cancelled';
+    booking.cancellationDate = new Date().toISOString().split('T')[0];
+    return Promise.resolve(booking);
   }
-  booking.status = 'cancelled';
-  booking.cancellationDate = new Date().toISOString().split('T')[0];
-  return Promise.resolve(booking);
 };

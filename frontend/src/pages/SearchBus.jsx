@@ -1,148 +1,207 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import BusCard from '../components/BusCard';
+import { searchBuses, getAvailableBuses } from '../services/busService';
+
+const busTypeOptions = ['Seater', 'Sleeper', 'AC', 'Non-AC'];
+const amenityOptions = ['WiFi', 'Charging Point', 'Blanket', 'Water Bottle'];
+const departureOptions = ['Before 06:00', '06:00 - 12:00', '12:00 - 18:00', 'After 18:00'];
+
+const parseHour = (time) => {
+  const match = String(time).match(/(\d{1,2}):?(\d{2})?/);
+  if (!match) return null;
+  const hour = Number(match[1]);
+  return hour;
+};
 
 const SearchBus = () => {
   const location = useLocation();
-  const [searchParams, setSearchParams] = useState({
-    from: '',
-    to: '',
-    travelDate: '',
-  });
+  const [searchParams, setSearchParams] = useState({ from: '', to: '', travelDate: '' });
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Dummy bus data
-  const dummyBuses = [
-    {
-      id: 1,
-      busName: 'RedBus Express',
-      departureTime: '08:00 AM',
-      arrivalTime: '02:30 PM',
-      duration: '6h 30m',
-      availableSeats: 12,
-      fare: 450,
-      busType: 'AC Semi-Sleeper',
-      rating: 4.5,
-    },
-    {
-      id: 2,
-      busName: 'MakeMyTrip Comfort',
-      departureTime: '10:30 AM',
-      arrivalTime: '04:45 PM',
-      duration: '6h 15m',
-      availableSeats: 8,
-      fare: 520,
-      busType: 'AC Sleeper',
-      rating: 4.3,
-    },
-    {
-      id: 3,
-      busName: 'GoIbibo Premium',
-      departureTime: '02:00 PM',
-      arrivalTime: '08:30 PM',
-      duration: '6h 30m',
-      availableSeats: 15,
-      fare: 380,
-      busType: 'AC Non-Sleeper',
-      rating: 4.1,
-    },
-    {
-      id: 4,
-      busName: 'TravelXpress Deluxe',
-      departureTime: '04:15 PM',
-      arrivalTime: '10:45 PM',
-      duration: '6h 30m',
-      availableSeats: 5,
-      fare: 650,
-      busType: 'Premium AC Sleeper',
-      rating: 4.7,
-    },
-    {
-      id: 5,
-      busName: 'QuickBus Economy',
-      departureTime: '06:00 AM',
-      arrivalTime: '12:15 PM',
-      duration: '6h 15m',
-      availableSeats: 20,
-      fare: 320,
-      busType: 'Non-AC',
-      rating: 3.9,
-    },
-    {
-      id: 6,
-      busName: 'SilverLines Elite',
-      departureTime: '11:45 AM',
-      arrivalTime: '06:00 PM',
-      duration: '6h 15m',
-      availableSeats: 10,
-      fare: 580,
-      busType: 'AC Semi-Sleeper',
-      rating: 4.4,
-    },
-  ];
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [selectedDeparture, setSelectedDeparture] = useState('');
 
   useEffect(() => {
-    if (location.state) {
-      setSearchParams(location.state);
-    } else {
-      setSearchParams({ from: '', to: '', travelDate: '' });
-    }
-
-    setLoading(true);
-    setError('');
-
-    const timer = setTimeout(() => {
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      setError('');
       try {
-        setBuses(dummyBuses);
+        if (location.state && (location.state.from || location.state.to)) {
+          setSearchParams(location.state);
+          const results = await searchBuses({ from: location.state.from, to: location.state.to });
+          if (!active) return;
+          setBuses(results || []);
+        } else {
+          setSearchParams({ from: '', to: '', travelDate: '' });
+          const results = await getAvailableBuses();
+          if (!active) return;
+          setBuses(results || []);
+        }
       } catch (err) {
+        console.error('Error fetching buses', err);
         setError('Unable to load bus results. Please refresh the page or try again later.');
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
-    }, 500);
+    };
 
-    return () => clearTimeout(timer);
+    load();
+    return () => {
+      active = false;
+    };
   }, [location]);
 
   const hasSearchInput = searchParams.from || searchParams.to || searchParams.travelDate;
 
+  const toggleType = (type) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type) ? prev.filter((item) => item !== type) : [...prev, type]
+    );
+  };
+
+  const toggleAmenity = (amenity) => {
+    setSelectedAmenities((prev) =>
+      prev.includes(amenity) ? prev.filter((item) => item !== amenity) : [...prev, amenity]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedTypes([]);
+    setSelectedAmenities([]);
+    setSelectedDeparture('');
+  };
+
+  const filteredBuses = useMemo(() => {
+    return buses.filter((bus) => {
+      const busTypes = selectedTypes.length > 0 ? selectedTypes : busTypeOptions;
+      const availability = selectedTypes.length ? busTypes.includes(bus.busType) : true;
+      if (!availability) return false;
+
+      const amenities = bus.amenities || bus.features || [];
+      if (selectedAmenities.length > 0) {
+        const amenityMatch = selectedAmenities.every((amenity) =>
+          amenities.some((item) => item.toLowerCase().includes(amenity.toLowerCase()))
+        );
+        if (!amenityMatch) return false;
+      }
+
+      if (selectedDeparture) {
+        const hour = parseHour(bus.departureTime);
+        if (hour === null) return false;
+        if (selectedDeparture === 'Before 06:00' && hour >= 6) return false;
+        if (selectedDeparture === '06:00 - 12:00' && (hour < 6 || hour > 12)) return false;
+        if (selectedDeparture === '12:00 - 18:00' && (hour < 12 || hour > 18)) return false;
+        if (selectedDeparture === 'After 18:00' && hour <= 18) return false;
+      }
+
+      return true;
+    });
+  }, [buses, selectedTypes, selectedAmenities, selectedDeparture]);
+
   return (
-    <div className="search-results-container">
+    <div className="search-results-page">
       <div className="search-results-header">
-        <h1>Available Buses</h1>
-        {hasSearchInput && (
-          <p>
-            {searchParams.from} → {searchParams.to} on {searchParams.travelDate}
+        <div>
+          <h1>Search Bus Results</h1>
+          <p className="search-subtitle">
+            {hasSearchInput
+              ? `${searchParams.from} → ${searchParams.to} • ${searchParams.travelDate || 'Flexible dates'}`
+              : 'Latest routes and top operators for your journey'}
           </p>
-        )}
+        </div>
+        <div className="search-summary-pill">
+          <span>{filteredBuses.length} buses found</span>
+          {selectedTypes.length + selectedAmenities.length + (selectedDeparture ? 1 : 0) > 0 && (
+            <button type="button" className="clear-filters" onClick={clearFilters}>
+              Clear filters
+            </button>
+          )}
+        </div>
       </div>
 
-      {loading ? (
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading buses...</p>
-        </div>
-      ) : error ? (
-        <div className="error-message">
-          {error}
-        </div>
-      ) : buses.length > 0 ? (
-        <div className="bus-results-grid">
-          {buses.map((bus) => (
-            <BusCard key={bus.id} bus={bus} />
-          ))}
-        </div>
-      ) : (
-        <div className="no-results">
-          <p>
-            {hasSearchInput
-              ? 'No buses found for your search. Please try different dates or routes.'
-              : 'Start by searching for your route to see available buses.'}
-          </p>
-        </div>
-      )}
+      <div className="search-page-inner">
+        <aside className="search-sidebar">
+          <div className="filter-card">
+            <div className="filter-card-header">
+              <h2>Filters</h2>
+              <span>Refine your results</span>
+            </div>
+
+            <div className="filter-group">
+              <h3>Bus Type</h3>
+              {busTypeOptions.map((type) => (
+                <label key={type} className="filter-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selectedTypes.includes(type)}
+                    onChange={() => toggleType(type)}
+                  />
+                  <span>{type}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="filter-group">
+              <h3>Amenities</h3>
+              {amenityOptions.map((amenity) => (
+                <label key={amenity} className="filter-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selectedAmenities.includes(amenity)}
+                    onChange={() => toggleAmenity(amenity)}
+                  />
+                  <span>{amenity}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="filter-group">
+              <h3>Departure time</h3>
+              {departureOptions.map((slot) => (
+                <label key={slot} className="filter-checkbox">
+                  <input
+                    type="radio"
+                    name="departure"
+                    checked={selectedDeparture === slot}
+                    onChange={() => setSelectedDeparture(slot)}
+                  />
+                  <span>{slot}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <section className="search-results-panel">
+          {loading ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Loading buses...</p>
+            </div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : filteredBuses.length > 0 ? (
+            <div className="bus-results-grid">
+              {filteredBuses.map((bus) => (
+                <BusCard key={bus._id} bus={bus} travelDate={searchParams.travelDate} />
+              ))}
+            </div>
+          ) : (
+            <div className="no-results">
+              <p>
+                {buses.length === 0
+                  ? 'No buses available right now. Try searching again later.'
+                  : 'No buses match your filter selection. Adjust filters to widen results.'}
+              </p>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };

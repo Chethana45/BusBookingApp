@@ -1,61 +1,91 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const BusCard = ({ bus, onViewSeats }) => {
+const AMENITY_ICONS = {
+  WiFi: '📶',
+  'Charging Point': '🔌',
+  Blanket: '🛏️',
+  'Water Bottle': '💧',
+  AC: '❄️',
+  'Non-AC': '🌡️',
+};
+
+const BusCard = ({ bus, onViewSeats, travelDate }) => {
   const navigate = useNavigate();
+  const amenities = bus.amenities || bus.features || [];
+  const origin = bus.from || bus.origin || bus.source || 'Start';
+  const destination = bus.to || bus.destination || bus.target || 'End';
 
   const handleViewSeats = () => {
     if (onViewSeats) {
       onViewSeats();
     } else {
-      navigate(`/bus-details/${bus.id}`);
+      navigate(`/bus-details/${bus._id}`, {
+        state: {
+          travelDate: travelDate || '',
+        },
+      });
     }
   };
 
   return (
     <div className="bus-card">
-      <div className="bus-card-header">
-        <h3 className="bus-name">{bus.busName}</h3>
-        <div className="bus-rating">
-          <span className="star">⭐</span>
-          <span>{bus.rating}</span>
+      <div className="bus-card-top">
+        <div>
+          <h3 className="bus-name">{bus.busName}</h3>
+          <p className="bus-subtitle">{origin} → {destination}</p>
+        </div>
+        <div className="bus-rating-pill">
+          <span>⭐</span>
+          <strong>{bus.rating || '4.5'}</strong>
         </div>
       </div>
 
-      <div className="bus-type">
-        <span className="badge">{bus.busType}</span>
+      <div className="bus-card-meta">
+        <span className="bus-badge">{bus.busType || 'AC'}</span>
+        <span className="bus-seats">{bus.availableSeats || 32} seats left</span>
       </div>
 
-      <div className="bus-times">
-        <div className="time-section">
-          <div className="time">{bus.departureTime}</div>
-          <div className="label">Departure</div>
+      <div className="bus-route-timeline">
+        <div className="route-point">
+          <span className="route-time">{bus.departureTime || '06:30'}</span>
+          <span className="route-label">Departure</span>
         </div>
-        <div className="duration-section">
-          <div className="duration-line"></div>
-          <div className="duration">{bus.duration}</div>
-          <div className="duration-line"></div>
-        </div>
-        <div className="time-section">
-          <div className="time">{bus.arrivalTime}</div>
-          <div className="label">Arrival</div>
-        </div>
-      </div>
 
-      <div className="bus-info">
-        <div className="info-item">
-          <span className="info-label">Seats Available</span>
-          <span className="info-value">{bus.availableSeats}</span>
+        <div className="route-line-wrapper">
+          <div className="route-line"></div>
+          <div className="route-duration">{bus.duration || '10h 45m'}</div>
         </div>
-        <div className="info-item">
-          <span className="info-label">Fare</span>
-          <span className="info-value">₹{bus.fare}</span>
+
+        <div className="route-point route-end">
+          <span className="route-time">{bus.arrivalTime || '17:15'}</span>
+          <span className="route-label">Arrival</span>
         </div>
       </div>
 
-      <button className="view-seats-btn" onClick={handleViewSeats}>
-        View Seats
-      </button>
+      <div className="bus-details-row">
+        <div className="fare-block">
+          <span className="fare-label">Starting fare</span>
+          <strong className="fare-amount">₹{bus.fare || 999}</strong>
+        </div>
+        <div className="amenity-list">
+          {amenities.slice(0, 4).map((amenity) => (
+            <span key={amenity} className="amenity-pill">
+              <span>{AMENITY_ICONS[amenity] || '✔️'}</span>
+              {amenity}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="bus-card-footer">
+        <div className="bus-operator">
+          <span>{bus.operator || 'Elite Travels'}</span>
+          <small>{bus.boardingPoint?.name || 'Main Stand'}</small>
+        </div>
+        <button className="view-seats-btn" onClick={handleViewSeats}>
+          View Seats
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,37 +1,79 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import { getBusById } from '../services/busService';
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const booking = location.state || {};
+  const booking = useMemo(() => location.state || {}, [location.state]);
+  const routeBus = booking.bus || null;
+  const routeTravelDate = booking.travelDate || '';
+  const routeSelectedSeats = booking.selectedSeats || [];
+  const routeTotalFare = booking.totalFare;
+  const routeFarePerSeat = booking.farePerSeat || 0;
 
-  const {
-    busName = 'RedBus Express',
-    from = 'New Delhi',
-    to = 'Mumbai',
-    departureTime = '20:30',
-    arrivalTime = '08:45',
-    busType = 'AC Sleeper',
-    selectedSeats = [12, 13],
-    totalFare = 900,
-    farePerSeat = 450,
-    passengers = selectedSeats.length,
-  } = booking;
-
-  const [paymentMethod, setPaymentMethod] = useState('upi');
-  const [passengerName, setPassengerName] = useState(booking.passengerName || 'Ananya Sharma');
-  const [email, setEmail] = useState(booking.email || 'ananya.sharma@example.com');
-  const [phone, setPhone] = useState(booking.phone || '+91 98765 43210');
+  const [busData, setBusData] = useState(routeBus);
+  const [loadingDetails, setLoadingDetails] = useState(!routeBus && Boolean(booking.busId));
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
 
-  const serviceFee = Math.round(totalFare * 0.05);
-  const taxes = Math.round(totalFare * 0.08);
-  const amountPayable = totalFare + serviceFee + taxes;
+  useEffect(() => {
+    let mounted = true;
+    const loadDetails = async () => {
+      if (routeBus) {
+        setBusData(routeBus);
+        setLoadingDetails(false);
+        return;
+      }
+      if (!booking || !booking.busId) {
+        setBusData(null);
+        setLoadingDetails(false);
+        return;
+      }
+      setLoadingDetails(true);
+      try {
+        const data = await getBusById(booking.busId);
+        if (!mounted) return;
+        setBusData(data || null);
+      } catch (err) {
+        console.error('Failed to load bus details for payment page', err);
+        if (!mounted) return;
+        setError('Failed to load bus details.');
+      } finally {
+        if (mounted) setLoadingDetails(false);
+      }
+    };
 
-  const handlePayNow = () => {
-    if (!selectedSeats || selectedSeats.length === 0) {
+    loadDetails();
+    return () => {
+      mounted = false;
+    };
+  }, [booking, routeBus]);
+
+  const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [passengerName, setPassengerName] = useState(booking.passengerName || '');
+  const [email, setEmail] = useState(booking.email || '');
+  const [phone, setPhone] = useState(booking.phone || '');
+
+  const effectiveBus = busData || routeBus;
+  const effectiveSelectedSeats = routeSelectedSeats;
+  const effectiveFarePerSeat = routeFarePerSeat || effectiveBus?.fare || 0;
+  const effectiveTotalFare = routeTotalFare !== undefined ? routeTotalFare : effectiveFarePerSeat * effectiveSelectedSeats.length;
+  const effectiveTravelDate = routeTravelDate || effectiveBus?.travelDate || '';
+
+  const serviceFee = Math.round(effectiveTotalFare * 0.05);
+  const taxes = Math.round(effectiveTotalFare * 0.08);
+  const amountPayable = effectiveTotalFare + serviceFee + taxes;
+
+  const displayFrom = effectiveBus?.from || '';
+  const displayTo = effectiveBus?.to || '';
+  const displayDeparture = effectiveBus?.departureTime || '';
+  const displayArrival = effectiveBus?.arrivalTime || '';
+  const displayBusType = effectiveBus?.busType || '';
+
+  const handlePayNow = async () => {
+    if (!effectiveSelectedSeats || effectiveSelectedSeats.length === 0) {
       setError('Please select a bus and seats before proceeding.');
       return;
     }
@@ -39,11 +81,29 @@ const Payment = () => {
     setError('');
     setIsProcessing(true);
 
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      const payload = {
+        busId: booking.busId || effectiveBus?._id || effectiveBus?.id,
+        seats: effectiveSelectedSeats,
+        travelDate: effectiveTravelDate,
+        passenger: {
+          name: passengerName,
+          email,
+          phone,
+        },
+        amount: amountPayable,
+        farePerSeat: effectiveFarePerSeat,
+        paymentMethod,
+      };
+
+      const res = await api.post('/bookings', payload);
+
+      const bookingResponse = res?.data || {};
+
+      // Navigate to confirmation with returned booking details
       navigate('/booking-confirmation', {
         state: {
-          ...booking,
+          ...bookingResponse,
           passengerName,
           email,
           phone,
@@ -51,10 +111,16 @@ const Payment = () => {
           totalFare: amountPayable,
         },
       });
-    }, 1000);
+    } catch (err) {
+      console.error('Payment/booking error:', err);
+      const msg = err?.response?.data?.message || 'Payment failed. Please try again.';
+      setError(msg);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  if (!booking || !booking.busId) {
+  if (!booking || (!booking.busId && !routeBus)) {
     return (
       <div className="payment-container">
         <div className="payment-card empty-state-card">
@@ -63,6 +129,17 @@ const Payment = () => {
           <button className="primary-btn" onClick={() => navigate('/search-bus')}>
             Search Buses
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadingDetails) {
+    return (
+      <div className="payment-container">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading bus details...</p>
         </div>
       </div>
     );
@@ -93,26 +170,35 @@ const Payment = () => {
           <div className="detail-row">
             <div>
               <span className="detail-label">Route</span>
-              <p className="detail-value">{from} → {to}</p>
+              <p className="detail-value">{displayFrom} → {displayTo}</p>
             </div>
-            <span className="badge">{busType}</span>
+            <span className="badge">{displayBusType}</span>
           </div>
 
           <div className="route-row">
             <div>
               <span className="detail-label">Departure</span>
-              <p className="detail-value">{departureTime}</p>
+              <p className="detail-value">{displayDeparture}</p>
             </div>
             <div>
               <span className="detail-label">Arrival</span>
-              <p className="detail-value">{arrivalTime}</p>
+              <p className="detail-value">{displayArrival}</p>
             </div>
           </div>
+
+          {effectiveTravelDate && (
+            <div className="detail-row">
+              <div>
+                <span className="detail-label">Travel Date</span>
+                <p className="detail-value">{effectiveTravelDate}</p>
+              </div>
+            </div>
+          )}
 
           <div className="selected-seats-card">
             <h3>Selected seats</h3>
             <div className="seat-list">
-              {selectedSeats.map((seat) => (
+              {effectiveSelectedSeats.map((seat) => (
                 <span key={seat} className="seat-pill">
                   {seat}
                 </span>
@@ -172,15 +258,15 @@ const Payment = () => {
           <div className="fare-card payment-summary-due">
             <div className="fare-line">
               <span>Fare per seat</span>
-              <span>₹{farePerSeat}</span>
+              <span>₹{effectiveFarePerSeat}</span>
             </div>
             <div className="fare-line">
               <span>Seats booked</span>
-              <span>{selectedSeats.length}</span>
+              <span>{effectiveSelectedSeats.length}</span>
             </div>
             <div className="fare-line">
               <span>Subtotal</span>
-              <span>₹{totalFare}</span>
+              <span>₹{effectiveTotalFare}</span>
             </div>
             <div className="fare-line">
               <span>Service fee</span>

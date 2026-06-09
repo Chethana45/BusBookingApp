@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+const loggedUser = JSON.parse(localStorage.getItem('user')) || {};
 const Profile = () => {
   const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
-  // Dummy user data
-  const [userProfile, setUserProfile] = useState({
-    firstName: 'Rajesh',
-    lastName: 'Kumar',
-    email: 'rajesh.kumar@email.com',
-    phone: '9876543210',
-    address: '123 Main Street, New Delhi, India',
-    city: 'New Delhi',
-    state: 'Delhi',
-    zipCode: '110001',
-    dateOfBirth: '1990-05-15',
-    gender: 'Male',
-  });
+ const [userProfile, setUserProfile] = useState({
+  firstName: loggedUser.name?.split(' ')[0] || '',
+  lastName: loggedUser.name?.split(' ').slice(1).join(' ') || '',
+  email: loggedUser.email || '',
+  phone: loggedUser.phone || '',
+  address: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  dateOfBirth: '',
+  gender: '',
+});
 
   const [formData, setFormData] = useState({ ...userProfile });
 
@@ -32,10 +31,10 @@ const Profile = () => {
   const [passwordErrors, setPasswordErrors] = useState({});
 
   const accountStats = [
-    { label: 'Total Bookings', value: '5', icon: '🎫' },
-    { label: 'Completed Trips', value: '4', icon: '✅' },
-    { label: 'Cancelled Bookings', value: '1', icon: '❌' },
-    { label: 'Loyalty Points', value: '2,450', icon: '⭐' },
+    { label: 'Total Bookings', value: '0', icon: '🎫' },
+    { label: 'Completed Trips', value: '0', icon: '✅' },
+    { label: 'Cancelled Bookings', value: '0', icon: '❌' },
+    { label: 'Loyalty Points', value: '0', icon: '⭐' },
   ];
 
   const handleInputChange = (e) => {
