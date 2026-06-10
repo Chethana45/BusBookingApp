@@ -47,10 +47,10 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('bookings');
     setIsLoggedIn(false);
     setUser(null);
     setIsMenuOpen(false);
-    // after logout, navigate to the login page
     // notify other parts of the app about auth change
     try {
       window.dispatchEvent(new Event('authChange'));

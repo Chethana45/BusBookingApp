@@ -30,6 +30,40 @@
   margin: 0;
 }
 
+.profile-header {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.15);
+}
+
+.profile-header-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.2);
+}
+
+.profile-header-info h1 {
+  margin: 0 0 0.35rem 0;
+}
+
+.profile-header-info p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 .booking-filters {
   display: flex;
   flex-wrap: wrap;
@@ -375,6 +409,15 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
 }
 
 .stat-icon {
@@ -568,6 +611,61 @@
 
 .preference-item input {
   accent-color: var(--primary-color);
+}
+
+/* Recent Activity Section */
+.activity-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.activity-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.08);
+  transform: translateX(4px);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(99, 102, 241, 0.16);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.activity-content {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.activity-title {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.activity-meta {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.no-activity {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
 }
 
 @media (max-width: 1024px) {

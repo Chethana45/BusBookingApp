@@ -7,18 +7,18 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
- const [userProfile, setUserProfile] = useState({
-  firstName: loggedUser.name?.split(' ')[0] || '',
-  lastName: loggedUser.name?.split(' ').slice(1).join(' ') || '',
-  email: loggedUser.email || '',
-  phone: loggedUser.phone || '',
-  address: '',
-  city: '',
-  state: '',
-  zipCode: '',
-  dateOfBirth: '',
-  gender: '',
-});
+  const [userProfile, setUserProfile] = useState({
+    firstName: loggedUser.name?.split(' ')[0] || '',
+    lastName: loggedUser.name?.split(' ').slice(1).join(' ') || '',
+    email: loggedUser.email || '',
+    phone: loggedUser.phone || '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    dateOfBirth: '',
+    gender: '',
+  });
 
   const [formData, setFormData] = useState({ ...userProfile });
 
@@ -42,40 +42,74 @@ const Profile = () => {
     return () => window.removeEventListener('bookingsUpdated', refreshBookings);
   }, []);
 
-const totalBookings = bookings.length;
+  // Helper functions for account info
+  const getAccountStatus = () => {
+    if (bookings.length === 0) return 'New Member';
+    const hasCompleted = bookings.some(b => b.status === 'completed');
+    return hasCompleted ? 'Active' : 'Inactive';
+  };
 
-const completedTrips = bookings.filter(
-  booking => booking.status === "completed"
-).length;
+  const getLastBookingDate = () => {
+    if (bookings.length === 0) return 'N/A';
+    const lastBooking = bookings[bookings.length - 1];
+    if (lastBooking.departureDate) {
+      return new Date(lastBooking.departureDate).toLocaleDateString();
+    }
+    return 'N/A';
+  };
 
-const cancelledBookings = bookings.filter(
-  booking => booking.status === "cancelled"
-).length;
+  const getPreferredRoute = () => {
+    if (bookings.length === 0) return 'N/A';
+    const routes = bookings.reduce((acc, booking) => {
+      const route = booking.route || 'Unknown';
+      acc[route] = (acc[route] || 0) + 1;
+      return acc;
+    }, {});
+    const preferred = Object.entries(routes).sort((a, b) => b[1] - a[1])[0];
+    return preferred ? preferred[0] : 'N/A';
+  };
 
-const loyaltyPoints = totalBookings * 100;
+  const getRegistrationDate = () => {
+    if (loggedUser.createdAt) {
+      return new Date(loggedUser.createdAt).toLocaleDateString();
+    }
+    return new Date().toLocaleDateString();
+  };
 
-const accountStats = [
-  {
-    label: 'Total Bookings',
-    value: totalBookings,
-    icon: '🎫',
-  },
-  {
-    label: 'Completed Trips',
-    value: completedTrips,
-    icon: '✅',
-  },
-  {
-    label: 'Cancelled Bookings',
-    value: cancelledBookings,
-    icon: '❌',
-  },
-  {
-    label: 'Loyalty Points',
-    value: loyaltyPoints,
-    icon: '⭐',
-  },
-];
+  const totalBookings = bookings.length;
+
+  const completedTrips = bookings.filter(
+    booking => booking.status === "completed"
+  ).length;
+
+  const cancelledBookings = bookings.filter(
+    booking => booking.status === "cancelled"
+  ).length;
+
+  const loyaltyPoints = completedTrips * 100;
+
+  const accountStats = [
+    {
+      label: 'Total Bookings',
+      value: totalBookings,
+      icon: '🎫',
+    },
+    {
+      label: 'Completed Trips',
+      value: completedTrips,
+      icon: '✅',
+    },
+    {
+      label: 'Cancelled Bookings',
+      value: cancelledBookings,
+      icon: '❌',
+    },
+    {
+      label: 'Loyalty Points',
+      value: loyaltyPoints,
+      icon: '⭐',
+    },
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -130,12 +164,6 @@ const accountStats = [
     setShowPasswordForm(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    alert('Logged out successfully');
-    navigate('/');
-  };
-
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -187,9 +215,6 @@ const accountStats = [
             >
               ⚙️ Settings
             </button>
-            <button className="tab-btn danger" onClick={handleLogout}>
-              🚪 Logout
-            </button>
           </div>
 
           {/* Profile Tab */}
@@ -228,23 +253,23 @@ const accountStats = [
                   </div>
 
                   <div className="profile-section">
-                    <h2>Address</h2>
+                    <h2>Account Information</h2>
                     <div className="info-grid">
                       <div className="info-item">
-                        <span className="info-label">Address</span>
-                        <span className="info-value">{userProfile.address}</span>
+                        <span className="info-label">Member Since</span>
+                        <span className="info-value">{getRegistrationDate()}</span>
                       </div>
                       <div className="info-item">
-                        <span className="info-label">City</span>
-                        <span className="info-value">{userProfile.city}</span>
+                        <span className="info-label">Last Booking</span>
+                        <span className="info-value">{getLastBookingDate()}</span>
                       </div>
                       <div className="info-item">
-                        <span className="info-label">State</span>
-                        <span className="info-value">{userProfile.state}</span>
+                        <span className="info-label">Preferred Route</span>
+                        <span className="info-value">{getPreferredRoute()}</span>
                       </div>
                       <div className="info-item">
-                        <span className="info-label">ZIP Code</span>
-                        <span className="info-value">{userProfile.zipCode}</span>
+                        <span className="info-label">Account Status</span>
+                        <span className="info-value">{getAccountStatus()}</span>
                       </div>
                     </div>
                   </div>
@@ -252,6 +277,33 @@ const accountStats = [
                   <button className="edit-btn" onClick={() => setIsEditMode(true)}>
                     ✏️ Edit Profile
                   </button>
+
+                  {/* Recent Activity Section */}
+                  <div className="profile-section">
+                    <h2>Recent Activity</h2>
+                    {bookings.length === 0 ? (
+                      <p className="no-activity">No bookings yet. Start your journey with us!</p>
+                    ) : (
+                      <div className="activity-list">
+                        {bookings.slice().reverse().slice(0, 5).map((booking, index) => (
+                          <div key={index} className="activity-item">
+                            <div className="activity-icon">
+                              {booking.status === 'completed' && '✅'}
+                              {booking.status === 'cancelled' && '❌'}
+                              {booking.status === 'pending' && '⏳'}
+                              {!booking.status && '📍'}
+                            </div>
+                            <div className="activity-content">
+                              <div className="activity-title">{booking.route || `Bus Booking ${booking.busId || 'N/A'}`}</div>
+                              <div className="activity-meta">
+                                Date: {booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : 'N/A'} • Status: {booking.status || 'Completed'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="profile-form">
