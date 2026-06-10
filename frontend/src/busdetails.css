@@ -20,9 +20,10 @@
 .bus-details-info {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 2.5rem;
   box-shadow: var(--shadow);
+  animation: slideInLeft 0.5s ease-out;
 }
 
 .bus-details-info h1 {
@@ -62,10 +63,10 @@
 }
 
 .bus-type-badge {
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(var(--primary-rgb), 0.15);
   border-radius: 999px;
   padding: 0.5rem 1rem;
-  color: #a5b4fc;
+  color: #c7d2fe;
   font-size: 0.85rem;
   font-weight: 700;
   width: fit-content;
@@ -76,9 +77,10 @@
   align-items: center;
   gap: 1.5rem;
   padding: 2rem;
-  background: rgba(99, 102, 241, 0.05);
-  border-radius: 16px;
+  background: rgba(var(--primary-rgb), 0.08);
+  border-radius: 12px;
   margin-top: 1.5rem;
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
 }
 
 .route-city-block {
@@ -118,9 +120,10 @@
 .price-card {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 2rem;
   box-shadow: var(--shadow);
+  animation: slideInRight 0.5s ease-out;
 }
 
 .price-card h3 {
@@ -202,7 +205,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(79, 70, 229, 0.08);
   border-radius: 12px;
   border: 1px solid var(--border-light);
 }

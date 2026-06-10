@@ -4,9 +4,9 @@
   --bg: #0a0e1f;
   --border: #1f2441;
   --code-bg: #141829;
-  --accent: #6366f1;
-  --accent-bg: rgba(99, 102, 241, 0.1);
-  --accent-border: rgba(99, 102, 241, 0.2);
+  --accent: #4F46E5;
+  --accent-bg: rgba(79, 70, 229, 0.1);
+  --accent-border: rgba(79, 70, 229, 0.2);
   --social-bg: rgba(31, 36, 65, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.3) 0 10px 15px -3px, rgba(0, 0, 0, 0.2) 0 4px 6px -2px;
@@ -71,6 +71,7 @@ button {
 
 input, textarea, select {
   font-family: inherit;
+  color: #111827;
 }
 
 code {

@@ -14,7 +14,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

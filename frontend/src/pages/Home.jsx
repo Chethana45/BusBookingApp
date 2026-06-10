@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const popularRoutes = [
@@ -22,6 +22,8 @@ const Home = () => {
     travelDate: '',
   });
 
+  const today = new Date().toISOString().split('T')[0];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -32,6 +34,16 @@ const Home = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    if (!formData.travelDate) {
+      alert('Please select a travel date');
+      return;
+    }
+
+    if (formData.travelDate < today) {
+      alert('Please select today or a future travel date');
+      return;
+    }
+
     if (formData.from && formData.to && formData.travelDate) {
       navigate('/search-bus', {
         state: {
@@ -116,6 +128,7 @@ const Home = () => {
                   className="input-field"
                   value={formData.travelDate}
                   onChange={handleInputChange}
+                  min={today}
                   required
                 />
               </div>

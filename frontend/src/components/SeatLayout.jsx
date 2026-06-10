@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const SeatLayout = ({ seats, selectedSeats, bookedSeats, onSeatSelect, farePerSeat }) => {
   const handleSeatClick = (seatNumber) => {

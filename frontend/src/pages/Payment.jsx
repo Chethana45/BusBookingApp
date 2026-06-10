@@ -99,7 +99,25 @@ const Payment = () => {
       const res = await api.post('/bookings', payload);
 
       const bookingResponse = res?.data || {};
+const existingBookings =
+  JSON.parse(localStorage.getItem("bookings")) || [];
 
+existingBookings.push({
+  ...bookingResponse,
+  busId: booking.busId || effectiveBus?._id,
+  busName: effectiveBus?.busName,
+  from: effectiveBus?.from,
+  to: effectiveBus?.to,
+  seats: effectiveSelectedSeats,
+  totalFare: amountPayable,
+  status: "completed",
+  bookingDate: new Date().toISOString(),
+});
+
+localStorage.setItem(
+  "bookings",
+  JSON.stringify(existingBookings)
+);
       // Navigate to confirmation with returned booking details
       navigate('/booking-confirmation', {
         state: {

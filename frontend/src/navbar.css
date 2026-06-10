@@ -70,14 +70,39 @@
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 0.55rem 0.1rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
 }
 
 .nav-link:hover {
   color: var(--text-primary);
+  background: rgba(79, 70, 229, 0.1);
+}
+
+.nav-link.active {
+  color: var(--primary-color);
+  background: rgba(79, 70, 229, 0.15);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0.75rem;
+  right: 0.75rem;
+  height: 2px;
+  background: var(--primary-color);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.nav-link.active::after {
+  transform: scaleX(1);
 }
 
 .navbar-right {
@@ -102,11 +127,12 @@
 .nav-primary {
   background: var(--gradient-primary);
   color: var(--text-primary);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);
 }
 
 .nav-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35);
 }
 
 .nav-logout {

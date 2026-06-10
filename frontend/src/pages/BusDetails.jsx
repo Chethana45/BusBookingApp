@@ -114,12 +114,16 @@ const BusDetails = () => {
       <div className="bus-details-wrapper">
         <div className="bus-image-section">
           <img
-            src={busDetails?.image ? (imageFailed ? placeholderImage : busDetails.image) : placeholderImage}
-            alt={busDetails?.busName || 'Bus details'}
-            className="bus-image"
-            onError={() => setImageFailed(true)}
-          />
-          <div className="bus-overlay-info">
+  src={
+    imageFailed
+      ? "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200"
+      : busDetails?.image
+  }
+  alt={busDetails?.busName || "Bus"}
+  className="bus-image"
+  onError={() => setImageFailed(true)}
+/>
+        <div className="bus-overlay-info">
             <div className="operator-badge">{busDetails.operator}</div>
           </div>
         </div>
@@ -196,7 +200,7 @@ const BusDetails = () => {
           <div className="amenities-section">
             <h2>Amenities & Facilities</h2>
             <div className="amenities-grid">
-              {busDetails.amenities.map((amenity) => (
+              {busDetails?.amenities?.map((amenity) => (
                 <div key={amenity} className="amenity-card">
                   <div className="amenity-icon">{getAmenityIcon(amenity)}</div>
                   <div className="amenity-name">{amenity}</div>
@@ -208,7 +212,7 @@ const BusDetails = () => {
           <div className="route-stops-section">
             <h2>Route Stops</h2>
             <div className="stops-timeline">
-              {busDetails.stops.map((stop, index) => (
+              {busDetails?.stops?.map((stop, index) => (
                 <div key={`${stop.name}-${index}`} className={`stop-item ${stop.type}`}>
                   <div className="stop-marker"></div>
                   <div className="stop-content">

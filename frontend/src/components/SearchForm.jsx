@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const SearchForm = ({ onSearch, minimal = false }) => {
@@ -9,6 +9,9 @@ const SearchForm = ({ onSearch, minimal = false }) => {
     travelDate: '',
     passengers: '1',
   });
+
+  const today = new Date().toISOString().split('T')[0];
+  const isPastDate = (date) => date && date < today;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -28,6 +31,11 @@ const SearchForm = ({ onSearch, minimal = false }) => {
 
     if (!formData.travelDate) {
       alert('Please select a travel date');
+      return;
+    }
+
+    if (isPastDate(formData.travelDate)) {
+      alert('Please select today or a future travel date');
       return;
     }
 
@@ -94,6 +102,7 @@ const SearchForm = ({ onSearch, minimal = false }) => {
               value={formData.travelDate}
               onChange={handleInputChange}
               className="form-input"
+              min={today}
             />
           </div>
           <button type="submit" className="btn btn-primary btn-search">
@@ -179,7 +188,7 @@ const SearchForm = ({ onSearch, minimal = false }) => {
             value={formData.travelDate}
             onChange={handleInputChange}
             className="form-input"
-            min={new Date().toISOString().split('T')[0]}
+            min={today}
           />
         </div>
 

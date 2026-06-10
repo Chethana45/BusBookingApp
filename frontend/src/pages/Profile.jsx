@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 const loggedUser = JSON.parse(localStorage.getItem('user')) || {};
 const Profile = () => {
@@ -29,13 +29,53 @@ const Profile = () => {
   });
 
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [bookings, setBookings] = useState(() =>
+    JSON.parse(localStorage.getItem('bookings')) || []
+  );
 
-  const accountStats = [
-    { label: 'Total Bookings', value: '0', icon: '🎫' },
-    { label: 'Completed Trips', value: '0', icon: '✅' },
-    { label: 'Cancelled Bookings', value: '0', icon: '❌' },
-    { label: 'Loyalty Points', value: '0', icon: '⭐' },
-  ];
+  useEffect(() => {
+    const refreshBookings = () => {
+      setBookings(JSON.parse(localStorage.getItem('bookings')) || []);
+    };
+
+    window.addEventListener('bookingsUpdated', refreshBookings);
+    return () => window.removeEventListener('bookingsUpdated', refreshBookings);
+  }, []);
+
+const totalBookings = bookings.length;
+
+const completedTrips = bookings.filter(
+  booking => booking.status === "completed"
+).length;
+
+const cancelledBookings = bookings.filter(
+  booking => booking.status === "cancelled"
+).length;
+
+const loyaltyPoints = totalBookings * 100;
+
+const accountStats = [
+  {
+    label: 'Total Bookings',
+    value: totalBookings,
+    icon: '🎫',
+  },
+  {
+    label: 'Completed Trips',
+    value: completedTrips,
+    icon: '✅',
+  },
+  {
+    label: 'Cancelled Bookings',
+    value: cancelledBookings,
+    icon: '❌',
+  },
+  {
+    label: 'Loyalty Points',
+    value: loyaltyPoints,
+    icon: '⭐',
+  },
+];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

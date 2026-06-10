@@ -221,7 +221,7 @@
 
 .input-field::placeholder,
 .form-input::placeholder {
-  color: var(--text-muted);
+  color: #6b7280;
 }
 
 .form-select {

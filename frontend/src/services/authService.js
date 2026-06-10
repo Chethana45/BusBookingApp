@@ -1,4 +1,4 @@
-import api from './api';
+
 
 const mockUser = {
   id: 1,

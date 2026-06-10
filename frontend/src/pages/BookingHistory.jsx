@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -8,6 +8,9 @@ const BookingHistory = () => {
   const [bookingsData, setBookingsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const today = new Date().toISOString().split('T')[0];
+
+  const getBookingId = (booking) => booking?.id || booking?._id || booking?.bookingId || '';
 
   useEffect(() => {
     let mounted = true;
@@ -62,7 +65,57 @@ const BookingHistory = () => {
   };
 
   const handleCancelBooking = (bookingId) => {
-    alert(`Cancellation process initiated for booking ${bookingId}`);
+    if (!bookingId) {
+      alert('Unable to cancel booking. Missing booking identifier.');
+      return;
+    }
+
+    const confirmCancel = window.confirm(
+      'Are you sure you want to cancel this booking?'
+    );
+
+    if (!confirmCancel) {
+      return;
+    }
+
+    const updatedBookings = bookingsData.map((booking) => {
+      if (getBookingId(booking) !== bookingId) return booking;
+      return {
+        ...booking,
+        status: 'cancelled',
+        cancellationDate: today,
+      };
+    });
+
+    setBookingsData(updatedBookings);
+
+    const localBookings = JSON.parse(localStorage.getItem('bookings')) || [];
+    let updatedLocalBookings = localBookings.map((booking) =>
+      getBookingId(booking) === bookingId
+        ? {
+            ...booking,
+            status: 'cancelled',
+            cancellationDate: today,
+          }
+        : booking
+    );
+
+    const bookingFromHistory = updatedBookings.find(
+      (booking) => getBookingId(booking) === bookingId
+    );
+
+    if (bookingFromHistory && !updatedLocalBookings.some((booking) => getBookingId(booking) === bookingId)) {
+      updatedLocalBookings.push({
+        ...bookingFromHistory,
+        id: bookingFromHistory.id || bookingFromHistory._id || bookingFromHistory.bookingId,
+        status: 'cancelled',
+        cancellationDate: today,
+      });
+    }
+
+    localStorage.setItem('bookings', JSON.stringify(updatedLocalBookings));
+    window.dispatchEvent(new Event('bookingsUpdated'));
+    alert('Booking cancelled successfully');
   };
 
   const handleRebooking = (booking) => {
@@ -118,11 +171,13 @@ const BookingHistory = () => {
         <div className="error-message">{error}</div>
       ) : filteredBookings.length > 0 ? (
         <div className="bookings-container">
-          {filteredBookings.map((booking) => (
-            <div key={booking.id} className="booking-card">
-              <div className="booking-card-header">
-                <div className="booking-info-left">
-                  <div className="booking-id">Booking ID: {booking.id}</div>
+          {filteredBookings.map((booking) => {
+            const bookingId = getBookingId(booking);
+            return (
+              <div key={bookingId || booking._id || booking.bookingId} className="booking-card">
+                <div className="booking-card-header">
+                  <div className="booking-info-left">
+                    <div className="booking-id">Booking ID: {bookingId || 'N/A'}</div>
                   <div className="booking-date">Booked on {booking.bookingDate}</div>
                 </div>
                 <div className={`booking-status ${getStatusBadgeClass(booking.status)}`}>
@@ -204,13 +259,13 @@ const BookingHistory = () => {
                   <>
                     <button
                       className="action-btn download-btn"
-                      onClick={() => handleDownloadTicket(booking.id)}
+                      onClick={() => handleDownloadTicket(bookingId)}
                     >
                       📥 Download Ticket
                     </button>
                     <button
                       className="action-btn cancel-btn"
-                      onClick={() => handleCancelBooking(booking.id)}
+                      onClick={() => handleCancelBooking(bookingId)}
                     >
                       ❌ Cancel Booking
                     </button>
@@ -220,7 +275,7 @@ const BookingHistory = () => {
                   <>
                     <button
                       className="action-btn download-btn"
-                      onClick={() => handleDownloadTicket(booking.id)}
+                      onClick={() => handleDownloadTicket(bookingId)}
                     >
                       📥 Download Receipt
                     </button>
@@ -248,7 +303,8 @@ const BookingHistory = () => {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="no-bookings">
