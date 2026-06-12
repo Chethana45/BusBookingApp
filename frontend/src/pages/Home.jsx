@@ -21,6 +21,7 @@ const Home = () => {
     to: '',
     travelDate: '',
   });
+  const [searchError, setSearchError] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -35,16 +36,17 @@ const Home = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (!formData.travelDate) {
-      alert('Please select a travel date');
+      setSearchError('Please select a valid future travel date.');
       return;
     }
 
     if (formData.travelDate < today) {
-      alert('Please select today or a future travel date');
+      setSearchError('Please select a valid future travel date.');
       return;
     }
 
     if (formData.from && formData.to && formData.travelDate) {
+      setSearchError('');
       navigate('/search-bus', {
         state: {
           from: formData.from,
@@ -53,7 +55,7 @@ const Home = () => {
         },
       });
     } else {
-      alert('Please fill in all fields');
+      setSearchError('Please fill in all fields.');
     }
   };
 
@@ -132,6 +134,7 @@ const Home = () => {
                   required
                 />
               </div>
+              {searchError && <div className="form-error">{searchError}</div>}
               <button type="submit" className="search-button">
                 Search buses
               </button>

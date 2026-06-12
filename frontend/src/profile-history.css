@@ -1,10 +1,14 @@
 /* Booking History & Profile Pages - Premium Dark */
-.booking-history-container,
-.profile-container {
+.profile-container,
+.booking-history-container {
   min-height: 100vh;
   padding: 2rem 1.5rem;
   background: var(--bg-primary);
   color: var(--text-primary);
+}
+
+.profile-container {
+  animation: fadeIn 0.4s ease-out;
 }
 
 .booking-history-header,
@@ -80,16 +84,24 @@
   padding: 0.9rem 1.25rem;
   border-radius: 999px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all var(--transition-base);
   font-weight: 700;
 }
 
-.filter-btn.active,
 .filter-btn:hover {
-  background: rgba(var(--primary-rgb), 0.14);
-  border-color: rgba(var(--primary-rgb), 0.24);
+  background: rgba(var(--primary-rgb), 0.12);
+  border-color: rgba(var(--primary-rgb), 0.3);
   color: var(--text-primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.12);
+}
+
+.filter-btn.active {
+  background: var(--gradient-primary);
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(var(--primary-rgb), 0.25);
 }
 
 .bookings-container {
@@ -105,12 +117,14 @@
   border-radius: 24px;
   padding: 1.75rem;
   box-shadow: var(--shadow);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: all var(--transition-base);
 }
 
 .booking-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(var(--primary-rgb), 0.24);
+  transform: translateY(-6px);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-hover);
+  background: rgba(20, 24, 41, 0.8);
 }
 
 .booking-card-header {
@@ -148,22 +162,22 @@
 
 .status-confirmed {
   background: rgba(var(--success-rgb), 0.18);
-  color: var(--success-color);
+  color: #6ee7b7;
 }
 
 .status-completed {
   background: rgba(var(--accent-rgb), 0.18);
-  color: var(--accent-color);
+  color: #93c5fd;
 }
 
 .status-pending {
   background: rgba(var(--warning-rgb), 0.18);
-  color: var(--warning-color);
+  color: #fcd34d;
 }
 
 .status-cancelled {
   background: rgba(var(--danger-rgb), 0.18);
-  color: var(--danger-color);
+  color: #fca5a5;
 }
 
 .booking-journey {
@@ -256,7 +270,7 @@
   padding: 0.55rem 0.9rem;
   border-radius: 999px;
   background: rgba(var(--secondary-rgb), 0.16);
-  color: var(--secondary-color);
+  color: var(--text-primary);
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -331,16 +345,37 @@
 .action-btn.rebook-btn {
   background: var(--gradient-primary);
   color: var(--text-primary);
-  box-shadow: 0 12px 28px rgba(var(--primary-rgb), 0.18);
+  box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.25);
+  border: none;
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.action-btn.download-btn:hover,
+.action-btn.rebook-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(var(--primary-rgb), 0.35);
 }
 
 .action-btn.cancel-btn {
-  background: rgba(var(--danger-rgb), 0.14);
-  color: var(--danger-color);
+  background: rgba(var(--danger-rgb), 0.18);
+  color: var(--text-primary);
+  border: 1px solid rgba(var(--danger-rgb), 0.35);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
 }
 
-.action-btn:hover {
-  transform: translateY(-1px);
+.action-btn.cancel-btn:hover {
+  background: rgba(var(--danger-rgb), 0.25);
+  border-color: var(--danger-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(var(--danger-rgb), 0.2);
 }
 
 .cancellation-note {
@@ -512,7 +547,7 @@
 
 .info-label,
 .form-group label {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.9rem;
 }
 
@@ -528,7 +563,7 @@
   border-radius: 16px;
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
-  color: #111827;
+  color: var(--text-primary);
   padding: 0.95rem 1rem;
 }
 
@@ -559,22 +594,41 @@
 .save-btn {
   background: var(--gradient-primary);
   color: var(--text-primary);
+  box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.25);
+  transition: all var(--transition-base);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(var(--primary-rgb), 0.35);
 }
 
 .cancel-btn {
   background: rgba(var(--primary-rgb), 0.08);
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  transition: all var(--transition-base);
+}
+
+.cancel-btn:hover {
+  background: rgba(var(--primary-rgb), 0.12);
+  border-color: rgba(var(--primary-rgb), 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.12);
 }
 
 .change-password-btn {
   background: rgba(var(--accent-rgb), 0.16);
-  color: var(--accent-color);
+  color: var(--text-primary);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  transition: all var(--transition-base);
 }
 
-.save-btn:hover,
-.change-password-btn:hover,
-.cancel-btn:hover {
-  transform: translateY(-1px);
+.change-password-btn:hover {
+  background: rgba(var(--accent-rgb), 0.25);
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(var(--accent-rgb), 0.15);
 }
 
 .password-form .form-group {

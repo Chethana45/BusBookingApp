@@ -9,6 +9,7 @@ const SearchForm = ({ onSearch, minimal = false }) => {
     travelDate: '',
     passengers: '1',
   });
+  const [formError, setFormError] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
   const isPastDate = (date) => date && date < today;
@@ -19,6 +20,7 @@ const SearchForm = ({ onSearch, minimal = false }) => {
       ...formData,
       [name]: value,
     });
+    setFormError('');
   };
 
   const handleSubmit = (e) => {
@@ -30,15 +32,16 @@ const SearchForm = ({ onSearch, minimal = false }) => {
     }
 
     if (!formData.travelDate) {
-      alert('Please select a travel date');
+      setFormError('Please select a valid future travel date.');
       return;
     }
 
     if (isPastDate(formData.travelDate)) {
-      alert('Please select today or a future travel date');
+      setFormError('Please select a valid future travel date.');
       return;
     }
 
+    setFormError('');
     if (onSearch) {
       onSearch(formData);
     } else {
@@ -208,7 +211,7 @@ const SearchForm = ({ onSearch, minimal = false }) => {
           </select>
         </div>
       </div>
-
+      {formError && <div className="form-error">{formError}</div>}
       <button type="submit" className="btn btn-primary btn-lg">
         🔍 Search Buses
       </button>

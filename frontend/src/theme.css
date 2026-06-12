@@ -167,7 +167,7 @@ body {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  color: #111827;
+  color: var(--text-primary);
   font-size: 1rem;
   transition: border-color 0.3s ease, background 0.3s ease;
 }
@@ -179,7 +179,7 @@ body {
 }
 
 .input-field::placeholder {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* Badge Component */

@@ -49,7 +49,7 @@
 }
 
 .bus-info-text {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
   max-width: 760px;
 }
 
@@ -68,7 +68,7 @@
   border: 1px solid var(--glass-border);
   border-radius: 18px;
   box-shadow: var(--shadow-sm);
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .stat-dot {
@@ -105,6 +105,13 @@
   border-radius: 24px;
   padding: 1.75rem;
   box-shadow: var(--shadow);
+  transition: all var(--transition-base);
+}
+
+.seat-layout-wrapper:hover,
+.seat-action-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-lg);
 }
 
 .seat-layout-header {
@@ -122,7 +129,7 @@
 
 .seat-layout-header p {
   margin: 0;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .seat-layout-container {
@@ -174,14 +181,15 @@
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font-weight: 700;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: all var(--transition-fast);
   cursor: pointer;
 }
 
 .seat:hover:not(.seat-booked) {
-  transform: translateY(-2px);
-  border-color: rgba(var(--primary-rgb), 0.5);
-  box-shadow: 0 12px 24px rgba(var(--primary-rgb), 0.12);
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--primary-color);
+  box-shadow: 0 12px 28px rgba(var(--primary-rgb), 0.25);
+  background: rgba(var(--primary-rgb), 0.1);
 }
 
 .seat-available {
@@ -241,6 +249,30 @@
   gap: 1.25rem;
 }
 
+.proceed-btn {
+  background: var(--gradient-primary);
+  color: var(--text-primary);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.25);
+  width: 100%;
+}
+
+.proceed-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.proceed-btn:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-active);
+}
+
 .seat-action-card h3 {
   margin: 0 0 1.25rem;
   font-size: 1.3rem;
@@ -258,13 +290,14 @@
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .journey-label,
 .label,
 .fare-label {
   font-weight: 600;
+  color: #ffffff;
 }
 
 .journey-value,

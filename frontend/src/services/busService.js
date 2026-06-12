@@ -14,8 +14,14 @@ export const getBusById = async (id) => {
   const res = await api.get(`/buses/${id}`);
   return res.data;
 };
-export const searchBuses = async ({ from, to }) => {
-  const res = await api.get('/buses');
+export const searchBuses = async ({ from, to, travelDate }) => {
+  const res = await api.get('/buses', {
+    params: {
+      from,
+      to,
+      travelDate,
+    },
+  });
 
   // Handle both array and wrapped response formats
   const buses = Array.isArray(res.data) ? res.data : res.data?.data || [];

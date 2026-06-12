@@ -20,6 +20,8 @@ const SearchBus = () => {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchError, setSearchError] = useState('');
+  const today = new Date().toISOString().split('T')[0];
 
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
@@ -32,8 +34,19 @@ const SearchBus = () => {
       setError('');
       try {
         if (location.state && (location.state.from || location.state.to)) {
+          if (location.state.travelDate && location.state.travelDate < today) {
+            setSearchError('Please select a valid future travel date.');
+            setSearchParams(location.state);
+            setBuses([]);
+            return;
+          }
+
           setSearchParams(location.state);
-          const results = await searchBuses({ from: location.state.from, to: location.state.to });
+          const results = await searchBuses({
+            from: location.state.from,
+            to: location.state.to,
+            travelDate: location.state.travelDate,
+          });
           if (!active) return;
           setBuses(results || []);
         } else {
@@ -44,7 +57,11 @@ const SearchBus = () => {
         }
       } catch (err) {
         console.error('Error fetching buses', err);
-        setError('Unable to load bus results. Please refresh the page or try again later.');
+        if (err?.response?.data?.message) {
+          setSearchError(err.response.data.message);
+        } else {
+          setError('Unable to load bus results. Please refresh the page or try again later.');
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -54,7 +71,7 @@ const SearchBus = () => {
     return () => {
       active = false;
     };
-  }, [location]);
+  }, [location, today]);
 
   const hasSearchInput = searchParams.from || searchParams.to || searchParams.travelDate;
 
@@ -183,6 +200,8 @@ const SearchBus = () => {
               <div className="spinner"></div>
               <p>Loading buses...</p>
             </div>
+          ) : searchError ? (
+            <div className="error-message">{searchError}</div>
           ) : error ? (
             <div className="error-message">{error}</div>
           ) : filteredBuses.length > 0 ? (

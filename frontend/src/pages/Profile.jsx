@@ -29,6 +29,7 @@ const Profile = () => {
   });
 
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [formError, setFormError] = useState('');
   const [bookings, setBookings] = useState(() =>
     JSON.parse(localStorage.getItem('bookings')) || []
   );
@@ -111,8 +112,13 @@ const Profile = () => {
     },
   ];
 
+  const today = new Date().toISOString().split('T')[0];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'dateOfBirth' && formError) {
+      setFormError('');
+    }
     setFormData({
       ...formData,
       [name]: value,
@@ -129,6 +135,12 @@ const Profile = () => {
   };
 
   const handleSaveProfile = () => {
+    if (formData.dateOfBirth && formData.dateOfBirth > today) {
+      setFormError('Date of birth cannot be in the future');
+      return;
+    }
+
+    setFormError('');
     setUserProfile({ ...formData });
     setIsEditMode(false);
     alert('Profile updated successfully!');
@@ -352,7 +364,11 @@ const Profile = () => {
                         name="dateOfBirth"
                         value={formData.dateOfBirth}
                         onChange={handleInputChange}
+                        max={today}
                       />
+                      {formError && (
+                        <span className="error-text">{formError}</span>
+                      )}
                     </div>
                     <div className="form-group">
                       <label>Gender</label>

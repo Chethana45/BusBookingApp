@@ -93,7 +93,7 @@
 
 .hero-copy > p {
   font-size: 1.15rem;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.7;
   text-shadow: 0 4px 15px rgba(0, 0, 0, 0.24);
 }
@@ -121,7 +121,7 @@
 }
 
 .hero-highlights p {
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
 }
 
@@ -132,11 +132,18 @@
   gap: 2rem;
   padding: 2rem;
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow-lg);
   animation: slideInUp 0.6s ease-out;
+  transition: all var(--transition-base);
+}
+
+.hero-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
 }
 
 .glass-card {
@@ -156,6 +163,7 @@
   font-size: 1.8rem;
   font-weight: 800;
   margin-top: 0.5rem;
+  color: #ffffff;
 }
 
 .banner-pill {
@@ -202,7 +210,7 @@
 
 .form-group label {
   font-weight: 600;
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 0.9rem;
 }
 
@@ -211,7 +219,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 1rem;
   transition: border-color 0.3s ease, background 0.3s ease;
 }
@@ -223,14 +231,14 @@
 }
 
 .form-group input::placeholder {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .search-button {
   grid-column: 1 / -1;
   background: var(--gradient-primary);
   border: none;
-  color: var(--text-primary);
+  color: #ffffff;
   padding: 1rem;
   border-radius: 12px;
   font-size: 1rem;
@@ -318,7 +326,7 @@
 .route-cities {
   font-size: 1.2rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: #ffffff;
 }
 
 .route-city {
@@ -365,7 +373,7 @@
 
 .feature-card h3 {
   font-size: 1.15rem;
-  color: var(--text-primary);
+  color: #ffffff;
 }
 
 .feature-card p {
@@ -419,7 +427,7 @@
   background: var(--gradient-primary);
   border: none;
   border-radius: 12px;
-  color: var(--text-primary);
+  color: #ffffff;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -473,4 +481,41 @@
   .ai-card {
     padding: 2rem 1rem;
   }
+}
+
+/* FORCE HOME PAGE TEXT VISIBILITY */
+.hero,
+.hero * {
+  color: #ffffff !important;
+}
+
+.hero-copy h1 {
+  color: #ffffff !important;
+}
+
+.hero-copy p {
+  color: rgba(255,255,255,0.95) !important;
+}
+
+.hero-highlights strong,
+.hero-highlights p {
+  color: #ffffff !important;
+}
+
+.hero-card h2,
+.hero-card label {
+  color: #ffffff !important;
+}
+
+/* Date input - ensure readable text on dark background */
+input[type="date"] {
+  color-scheme: dark;
+  color: #ffffff !important;
+  background: var(--bg-secondary) !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
 }

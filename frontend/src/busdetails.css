@@ -20,10 +20,16 @@
 .bus-details-info {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 2.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-lg);
   animation: slideInLeft 0.5s ease-out;
+  transition: all var(--transition-base);
+}
+
+.bus-details-info:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-hover);
 }
 
 .bus-details-info h1 {
@@ -52,12 +58,12 @@
 }
 
 .detail-label {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .detail-value {
-  color: var(--text-primary);
+  color: #ffffff;
   font-weight: 700;
   font-size: 1.1rem;
 }
@@ -108,7 +114,7 @@
 
 .route-duration-text {
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .bus-details-sidebar {
@@ -127,7 +133,7 @@
 }
 
 .price-card h3 {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   margin-bottom: 0.75rem;
 }
@@ -166,7 +172,7 @@
   background: var(--gradient-primary);
   border: none;
   border-radius: 12px;
-  color: var(--text-primary);
+  color: #ffffff;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -192,6 +198,7 @@
 .amenities-section h2 {
   margin-bottom: 1.5rem;
   font-size: 1.3rem;
+  color: #ffffff;
 }
 
 .amenities-list {
@@ -221,12 +228,12 @@
 }
 
 .amenity-name {
-  color: var(--text-primary);
+  color: #ffffff;
   font-weight: 600;
 }
 
 .amenity-desc {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
@@ -242,6 +249,7 @@
 .stops-section h2 {
   margin-bottom: 1.5rem;
   font-size: 1.3rem;
+  color: #ffffff;
 }
 
 .stops-timeline {
@@ -283,7 +291,7 @@
 
 .stop-time {
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   margin-bottom: 0.25rem;
 }
 
@@ -293,7 +301,7 @@
 }
 
 .stop-address {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
