@@ -12,9 +12,10 @@ const Payment = () => {
   const routeSelectedSeats = booking.selectedSeats || [];
   const routeTotalFare = booking.totalFare;
   const routeFarePerSeat = booking.farePerSeat || 0;
+  const routeBusId = booking.busId || null;
 
   const [busData, setBusData] = useState(routeBus);
-  const [loadingDetails, setLoadingDetails] = useState(!routeBus && Boolean(booking.busId));
+  const [loadingDetails, setLoadingDetails] = useState(!routeBus && Boolean(routeBusId));
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
 
@@ -26,20 +27,23 @@ const Payment = () => {
         setLoadingDetails(false);
         return;
       }
-      if (!booking || !booking.busId) {
+      if (!routeBusId) {
         setBusData(null);
         setLoadingDetails(false);
         return;
       }
       setLoadingDetails(true);
       try {
-        const data = await getBusById(booking.busId);
+        let data = await getBusById(routeBusId);
+        // Normalize wrapped API response same as SeatSelection does
+        if (data && data.data) data = data.data;
+        if (Array.isArray(data)) data = data[0] || null;
         if (!mounted) return;
         setBusData(data || null);
       } catch (err) {
         console.error('Failed to load bus details for payment page', err);
         if (!mounted) return;
-        setError('Failed to load bus details.');
+        setError('Unable to load booking details. Please return and try again.');
       } finally {
         if (mounted) setLoadingDetails(false);
       }
@@ -49,7 +53,7 @@ const Payment = () => {
     return () => {
       mounted = false;
     };
-  }, [booking, routeBus]);
+  }, [routeBusId, routeBus]);
 
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const [passengerName, setPassengerName] = useState(booking.passengerName || '');
@@ -57,6 +61,7 @@ const Payment = () => {
   const [phone, setPhone] = useState(booking.phone || '');
 
   const effectiveBus = busData || routeBus;
+  const effectiveBusId = routeBusId || effectiveBus?._id || effectiveBus?.id || '';
   const effectiveSelectedSeats = routeSelectedSeats;
   const effectiveFarePerSeat = routeFarePerSeat || effectiveBus?.fare || 0;
   const effectiveTotalFare = routeTotalFare !== undefined ? routeTotalFare : effectiveFarePerSeat * effectiveSelectedSeats.length;
@@ -72,78 +77,27 @@ const Payment = () => {
   const displayArrival = effectiveBus?.arrivalTime || '';
   const displayBusType = effectiveBus?.busType || '';
 
-  const handlePayNow = async () => {
-    if (!effectiveSelectedSeats || effectiveSelectedSeats.length === 0) {
-      setError('Please select a bus and seats before proceeding.');
-      return;
-    }
-
-    setError('');
-    setIsProcessing(true);
-
-    try {
-      const payload = {
-        busId: booking.busId || effectiveBus?._id || effectiveBus?.id,
-        seats: effectiveSelectedSeats,
-        travelDate: effectiveTravelDate,
-        passenger: {
-          name: passengerName,
-          email,
-          phone,
-        },
-        amount: amountPayable,
-        farePerSeat: effectiveFarePerSeat,
-        paymentMethod,
-      };
-
-      const res = await api.post('/bookings', payload);
-
-      const bookingResponse = res?.data || {};
-const existingBookings =
-  JSON.parse(localStorage.getItem("bookings")) || [];
-
-existingBookings.push({
-  ...bookingResponse,
-  busId: booking.busId || effectiveBus?._id,
-  busName: effectiveBus?.busName,
-  from: effectiveBus?.from,
-  to: effectiveBus?.to,
-  seats: effectiveSelectedSeats,
-  totalFare: amountPayable,
-  status: "completed",
-  bookingDate: new Date().toISOString(),
-});
-
-localStorage.setItem(
-  "bookings",
-  JSON.stringify(existingBookings)
-);
-      // Navigate to confirmation with returned booking details
-      navigate('/booking-confirmation', {
-        state: {
-          ...bookingResponse,
-          passengerName,
-          email,
-          phone,
-          paymentMethod: paymentMethod.toUpperCase().replace('-', ' '),
-          totalFare: amountPayable,
-        },
-      });
-    } catch (err) {
-      console.error('Payment/booking error:', err);
-      const msg = err?.response?.data?.message || 'Payment failed. Please try again.';
-      setError(msg);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  if (!booking || (!booking.busId && !routeBus)) {
+  // Redirect if required booking data is missing
+  if (!routeBusId && !routeBus) {
     return (
       <div className="payment-container">
         <div className="payment-card empty-state-card">
           <h2>No booking selected</h2>
-          <p>Choose a bus and seats before continuing to payment.</p>
+          <p>Please select a bus and seats before proceeding to payment.</p>
+          <button className="primary-btn" onClick={() => navigate('/search-bus')}>
+            Search Buses
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!effectiveTravelDate) {
+    return (
+      <div className="payment-container">
+        <div className="payment-card empty-state-card">
+          <h2>Travel date is missing</h2>
+          <p>Please select a travel date and seats before proceeding.</p>
           <button className="primary-btn" onClick={() => navigate('/search-bus')}>
             Search Buses
           </button>
@@ -157,11 +111,127 @@ localStorage.setItem(
       <div className="payment-container">
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>Loading bus details...</p>
+          <p>Loading booking details...</p>
         </div>
       </div>
     );
   }
+
+  const handlePayNow = async () => {
+    if (!effectiveSelectedSeats || effectiveSelectedSeats.length === 0) {
+      setError('Please select a travel date and seat before proceeding.');
+      return;
+    }
+
+    if (!effectiveTravelDate) {
+      setError('Please select a travel date and seat before proceeding.');
+      return;
+    }
+
+    if (!effectiveBusId) {
+      setError('Please select a travel date and seat before proceeding.');
+      return;
+    }
+
+    if (!passengerName.trim()) {
+      setError('Please enter your full name to continue.');
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('Please enter your email address to continue.');
+      return;
+    }
+
+    if (!phone.trim()) {
+      setError('Please enter your phone number to continue.');
+      return;
+    }
+
+    setError('');
+    setIsProcessing(true);
+
+    try {
+      const payload = {
+        busId: effectiveBusId,
+        seats: effectiveSelectedSeats,
+        travelDate: effectiveTravelDate,
+        passenger: {
+          name: passengerName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+        },
+        amount: amountPayable,
+        farePerSeat: effectiveFarePerSeat,
+        paymentMethod,
+        paymentMode: paymentMethod, // backend expects paymentMode
+      };
+
+      const res = await api.post('/bookings', payload);
+
+      const bookingResponse = res?.data || {};
+      const existingBookings =
+        JSON.parse(localStorage.getItem("bookings")) || [];
+
+      existingBookings.push({
+        ...bookingResponse,
+        busId: effectiveBusId,
+        busName: effectiveBus?.busName,
+        from: effectiveBus?.from,
+        to: effectiveBus?.to,
+        seats: effectiveSelectedSeats,
+        totalFare: amountPayable,
+        status: "completed",
+        bookingDate: new Date().toISOString(),
+      });
+
+      localStorage.setItem(
+        "bookings",
+        JSON.stringify(existingBookings)
+      );
+
+      navigate('/booking-confirmation', {
+        state: {
+          ...bookingResponse,
+          passengerName: passengerName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          paymentMethod: paymentMethod.toUpperCase().replace('-', ' '),
+          totalFare: amountPayable,
+          busName: effectiveBus?.busName,
+          busType: effectiveBus?.busType,
+          from: effectiveBus?.from,
+          to: effectiveBus?.to,
+          journeyDate: effectiveTravelDate,
+          departureTime: effectiveBus?.departureTime,
+          arrivalTime: effectiveBus?.arrivalTime,
+          selectedSeats: effectiveSelectedSeats,
+          farePerSeat: effectiveFarePerSeat,
+        },
+      });
+    } catch (err) {
+      console.error('Payment/booking error:', err);
+      const backendMsg = err?.response?.data?.message || '';
+      
+      if (backendMsg.toLowerCase().includes('bus') && backendMsg.toLowerCase().includes('required')) {
+        setError('Please select a travel date and seat before proceeding.');
+      } else if (backendMsg.toLowerCase().includes('seat') && backendMsg.toLowerCase().includes('required')) {
+        setError('Please select a travel date and seat before proceeding.');
+      } else if (backendMsg.toLowerCase().includes('travel date') && backendMsg.toLowerCase().includes('required')) {
+        setError('Please select a travel date and seat before proceeding.');
+      } else if (backendMsg.toLowerCase().includes('already booked') || backendMsg.toLowerCase().includes('already taken')) {
+        setError('Some selected seats are already booked. Please go back and choose different seats.');
+      } else if (backendMsg.toLowerCase().includes('payment')) {
+        setError('Payment could not be processed. Please check your payment method and try again.');
+      } else if (backendMsg.toLowerCase().includes('network') || backendMsg.toLowerCase().includes('timeout')) {
+        setError('Unable to connect. Please check your internet and try again.');
+      } else {
+        setError(backendMsg || 'Booking could not be completed. Please try again.');
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="payment-container">
