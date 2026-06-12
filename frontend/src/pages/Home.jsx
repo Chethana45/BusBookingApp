@@ -163,7 +163,7 @@ const Home = () => {
                   </div>
                   <div className="route-arrow">→</div>
                 </div>
-                <div className="route-demand">{route.demand}</div>
+                  <div className="route-demand" data-demand={route.demand}>{route.demand}</div>
               </div>
             ))}
           </div>

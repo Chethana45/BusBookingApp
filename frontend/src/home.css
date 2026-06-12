@@ -286,8 +286,8 @@
 }
 
 .route-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: linear-gradient(145deg, rgba(30, 35, 58, 0.9), rgba(20, 24, 41, 0.95));
+  border: 1px solid rgba(99, 102, 241, 0.25);
   border-radius: 20px;
   padding: 2rem;
   cursor: pointer;
@@ -295,12 +295,27 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.route-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  border-radius: 20px 20px 0 0;
+  opacity: 0.8;
 }
 
 .route-card:hover {
   transform: translateY(-8px);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: var(--shadow-lg);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.15);
 }
 
 .route-header {
@@ -315,26 +330,52 @@
 
 .route-demand {
   display: inline-block;
-  background: rgba(245, 158, 11, 0.15);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.15));
+  border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: 999px;
-  padding: 0.35rem 0.85rem;
-  color: #fbbf24;
+  padding: 0.4rem 0.95rem;
+  color: #fde68a;
   font-size: 0.8rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  width: fit-content;
+}
+
+.route-demand[data-demand="High demand"] {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.15));
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.route-demand[data-demand="Popular route"] {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.15));
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+}
+
+.route-demand[data-demand="Best value"] {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.15));
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
 }
 
 .route-cities {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #ffffff;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .route-city {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-secondary);
+  color: #e2e8f0;
   font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
 /* Features Section */
