@@ -22,6 +22,9 @@ app.get('/', (req, res) => {
     message: 'Bus Booking Backend API is running',
   });
 });
+app.get("/", (req, res) => {
+  res.send("Bus Booking API Running 🚀");
+});
 
 app.get('/api/health', (req, res) => {
   res.json({
