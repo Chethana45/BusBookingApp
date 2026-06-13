@@ -29,7 +29,7 @@ function App() {
         <Route path="/booking-history" element={<BookingHistory />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
-      <ChatbotWidget />
+      <ChatbotWidget /> 
     </BrowserRouter>
   );
 }

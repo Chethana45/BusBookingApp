@@ -75,7 +75,10 @@ const busSchema = new mongoose.Schema(
     stops: [stopSchema],
     image: String,
     cancellationPolicy: String,
-    bookedSeats: [Number],
+    bookedSeats: {
+      type: [Number],
+      default: [],
+    },
   },
   {
     timestamps: true,

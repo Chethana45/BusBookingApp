@@ -77,13 +77,20 @@ const ChatbotWidget = () => {
 
   return (
     <div className={`chatbot-widget ${isOpen ? 'open' : ''}`}>
-      <div className="chatbot-action-button" onClick={handleToggle}>
+      {/* <div className="chatbot-action-button" onClick={handleToggle}>
         <span>{isOpen ? '×' : '💬'}</span>
         <span className="chatbot-action-label">Help</span>
-      </div>
+      </div> */}
+      <button 
+      className={`chatbot-button ${isOpen ? 'open' : ''}`} 
+      onClick={handleToggle}
+      >
+        {isOpen ? '×' : '💬'}
+        </button>
 
-      {isOpen && (
-        <div className="chatbot-window">
+
+      {/*{isOpen && (*/}
+        <div className={`chatbot-window ${isOpen ? 'open' : ''}`}>
           <div className="chatbot-header">
             <div>
               <h4>BusBuddy</h4>
@@ -96,18 +103,28 @@ const ChatbotWidget = () => {
 
           <div className="chatbot-messages" ref={messagesRef}>
             {messages.map((message) => (
-              <div key={message.id} className={`chatbot-message ${message.sender}`}>
-                <div className="message-bubble">{message.text}</div>
+              <div key={message.id} className={`chat-message ${message.sender}`}>
+                <div className="chat-bubble">{message.text}</div>
               </div>
             ))}
-            {isTyping && (
-              <div className="chatbot-message bot">
+            {/*{isTyping && (
+              <div className="chat-message bot">
                 <div className="message-bubble typing">BusBuddy is typing...</div>
               </div>
+            )}*/}
+            {isTyping && (
+              <div className="chat-message bot">
+                <div className="chat-bubble typing-indicator">
+                  <span className="typing-dot"></span>
+                  <span className="typing-dot"></span>
+                  <span className="typing-dot"></span>
+                 </div>      
+              </div>
             )}
+
           </div>
 
-          <form className="chatbot-input-row" onSubmit={handleSubmit}>
+          {/*<form className="chatbot-input-area" onSubmit={handleSubmit}>
             <input
               value={inputValue}
               onChange={(event) => setInputValue(event.target.value)}
@@ -115,9 +132,20 @@ const ChatbotWidget = () => {
               aria-label="Type a message"
             />
             <button type="submit">Send</button>
+          </form>*/}
+          <form className="chatbot-input-area" onSubmit={handleSubmit}>
+              <input
+                className="chatbot-input"
+                value={inputValue}
+                onChange={(event) => setInputValue(event.target.value)}
+                placeholder="Ask BusBuddy..."
+                aria-label="Type a message"
+              />
+              <button type="submit" className="chatbot-send">➤</button>
           </form>
+
         </div>
-      )}
+      {/*})}*/}
     </div>
   );
 };
