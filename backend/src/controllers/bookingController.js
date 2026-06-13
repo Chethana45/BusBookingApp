@@ -86,20 +86,36 @@ const createBooking = async (req, res) => {
       return seatNum;
     });
 
-    const alreadyBooked = requestedSeats.some((seat) => bus.bookedSeats.includes(seat));
+    const bookedSeats = Array.isArray(bus.bookedSeats) ? bus.bookedSeats : [];
+    const actualAvailableSeats = typeof bus.totalSeats === 'number'
+      ? bus.totalSeats - bookedSeats.length
+      : bus.availableSeats;
+
+    if (bus.availableSeats !== actualAvailableSeats) {
+      console.warn('Inconsistent bus seat counts:', {
+        busId: bus._id,
+        totalSeats: bus.totalSeats,
+        availableSeats: bus.availableSeats,
+        bookedSeatsCount: bookedSeats.length,
+        actualAvailableSeats,
+      });
+      bus.availableSeats = actualAvailableSeats;
+    }
+
+    const alreadyBooked = requestedSeats.some((seat) => bookedSeats.includes(seat));
 
     if (alreadyBooked) {
-      const unavailableSeats = requestedSeats.filter((seat) => bus.bookedSeats.includes(seat));
+      const unavailableSeats = requestedSeats.filter((seat) => bookedSeats.includes(seat));
       return res.status(409).json({
         message: 'One or more selected seats are already booked',
         unavailableSeats,
       });
     }
 
-    if (bus.availableSeats < selectedSeats.length) {
+    if (actualAvailableSeats < selectedSeats.length) {
       return res.status(409).json({
         message: 'Not enough seats available',
-        available: bus.availableSeats,
+        available: actualAvailableSeats,
         requested: selectedSeats.length,
       });
     }
