@@ -22,11 +22,33 @@ const bookingSchema = new mongoose.Schema(
     departureTime: String,
     arrivalTime: String,
     seats: {
-      type: [String],
+      type: [Number],
       required: true,
     },
     passengerCount: Number,
+    passengerDetails: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        email: {
+          type: String,
+          required: true,
+        },
+        phone: {
+          type: String,
+          required: true,
+        },
+        age: Number,
+        gender: String,
+      },
+    ],
     fare: Number,
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
     farePerSeat: Number,
     status: {
       type: String,
@@ -37,6 +59,11 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       enum: ['Card', 'UPI', 'Wallet', 'Cash'],
       default: 'UPI',
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'completed', 'failed'],
+      default: 'pending',
     },
     cancellationDate: {
       type: String,
